@@ -229,10 +229,10 @@ class LegoBuilder(Node):
                         'x':     p.position.x,
                         'y':     p.position.y,
                         'z':     match['height_m'],
-                        'qx':    p.orientation.x,
-                        'qy':    p.orientation.y,
-                        'qz':    p.orientation.z,
-                        'qw':    p.orientation.w,
+                        'qx':    0.0,
+                        'qy':    1.0,
+                        'qz':    0.0,
+                        'qw':    0.0,
                         'frame': 'baseplate',
                     }
                     self.get_logger().info(
