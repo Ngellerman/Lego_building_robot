@@ -2,6 +2,7 @@
 from std_srvs.srv import Trigger
 import argparse
 import json
+import math
 from enum import Enum, auto
 from pathlib import Path
 import rclpy
@@ -20,6 +21,16 @@ from planning.ik import IKPlanner
 # Default orientation (0, 1, 0, 0) points the gripper straight down.
 ARUCO_SCAN_POSE = (-0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
 BRICK_SCAN_POSE = (0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
+
+STUD_PITCH_M        = 0.016   # 16 mm per stud
+LEGO_LAYER_HEIGHT_M = 0.0096  # 9.6 mm per brick layer
+
+
+def _rotation_deg_to_quat(deg):
+    """Return (qx, qy, qz, qw) for a down-facing gripper yawed by deg about world Z."""
+    r = math.radians(deg)
+    # Compose: q_yaw(z) * q_down(y=180°) → (-sin(r/2), cos(r/2), 0, 0)
+    return (-math.sin(r / 2), math.cos(r / 2), 0.0, 0.0)
 
 _JOINT_NAMES = [
     'shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
@@ -53,28 +64,42 @@ class Phase(Enum):
 
 
 
-def _load_bricks(json_path: Path) -> list[dict]:
-    """
-    Expected JSON format:
-    {
-      "bricks": [
-        {
-          "id": 0,
-          "label": "2x4 red",
-          "pick":  {"x": 0.3, "y": 0.2,  "z": 0.05, "qx": 0.0, "qy": 1.0, "qz": 0.0, "qw": 0.0},
-          "place": {"x": 0.4, "y": -0.3, "z": 0.05, "qx": 0.0, "qy": 1.0, "qz": 0.0, "qw": 0.0}
-        }
-      ]
-    }
-    """
-    return json.loads(json_path.read_text())['bricks']
+def _load_bricks(json_path: Path, picks_path: Path = None) -> list[dict]:
+    raw = json.loads(json_path.read_text())
+
+    # lego_build.json format: top-level list of steps with grid positions
+    if isinstance(raw, list):
+        picks = []
+        if picks_path is not None:
+            picks = json.loads(picks_path.read_text())['bricks']
+
+        bricks = []
+        for i, entry in enumerate(raw):
+            qx, qy, qz, qw = _rotation_deg_to_quat(entry.get('rotation_deg', 0))
+            pick = picks[i]['pick'] if i < len(picks) else None
+            bricks.append({
+                'id':    entry.get('block_id', entry.get('step')),
+                'label': f"{entry.get('color', '')} {entry.get('type', '')}".strip(),
+                'pick':  pick,
+                'place': {
+                    'x': entry['grid_x'] * STUD_PITCH_M,
+                    'y': entry['grid_z'] * STUD_PITCH_M,
+                    'z': entry['layer']  * LEGO_LAYER_HEIGHT_M,
+                    'qx': qx, 'qy': qy, 'qz': qz, 'qw': qw,
+                    'frame': 'baseplate',
+                },
+            })
+        return bricks
+
+    # Legacy bricks_test.json format: {"bricks": [...]}
+    return raw['bricks']
 
 
 class LegoBuilder(Node):
-    def __init__(self, bricks_json: Path):
+    def __init__(self, bricks_json: Path, picks_json: Path = None):
         super().__init__('lego_builder')
 
-        self.bricks    = _load_bricks(bricks_json)
+        self.bricks    = _load_bricks(bricks_json, picks_json)
         self.brick_idx = 0
         self.phase     = Phase.MOVE_TO_ARUCO
 
@@ -225,6 +250,10 @@ class LegoBuilder(Node):
         pl    = brick['place']
         label = brick.get('label', f'brick_{self.brick_idx}')
 
+        if pk is None:
+            self.get_logger().error(f'No pick pose for brick {self.brick_idx} — skipping.')
+            return
+
         px, py, pz, pqx, pqy, pqz, pqw = self._resolve_pose(pk)
         lx, ly, lz, lqx, lqy, lqz, lqw = self._resolve_pose(pl)
 
@@ -349,11 +378,13 @@ class LegoBuilder(Node):
 def main(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--bricks', type=Path, required=True,
-                        help='Path to bricks JSON file.')
+                        help='Path to bricks JSON file (lego_build.json or bricks_test.json).')
+    parser.add_argument('--picks', type=Path, default=None,
+                        help='Path to picks JSON file (bricks_test.json). Required for lego_build.json format.')
     parsed, ros_args = parser.parse_known_args(args)
 
     rclpy.init(args=ros_args)
-    node = LegoBuilder(bricks_json=parsed.bricks)
+    node = LegoBuilder(bricks_json=parsed.bricks, picks_json=parsed.picks)
     rclpy.spin(node)
     node.destroy_node()
 
