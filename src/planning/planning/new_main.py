@@ -332,6 +332,7 @@ class LegoBuilder(Node):
             self.execute_jobs()
 
     def _toggle_gripper(self):
+        import time
         self.get_logger().info('[GRIP] waiting for service...')
         if not self.gripper_cli.wait_for_service(timeout_sec=5.0):
             self.get_logger().error('[GRIP] service not available after 5 s — aborting.')
@@ -339,7 +340,13 @@ class LegoBuilder(Node):
             return
         self.get_logger().info('[GRIP] calling toggle...')
         future = self.gripper_cli.call_async(Trigger.Request())
-        rclpy.spin_until_future_complete(self, future, timeout_sec=5.0)
+        # Poll — let rclpy.spin() in the main thread process the response.
+        # Do NOT call spin_until_future_complete here; that would race with the main executor.
+        waited = 0
+        while rclpy.ok() and not future.done():
+            time.sleep(0.01)
+            waited += 1
+        self.get_logger().info(f'[GRIP] future resolved after ~{waited * 10} ms.')
         try:
             result = future.result()
             self.get_logger().info(f'[GRIP] toggled — success={result.success} msg="{result.message}".')
