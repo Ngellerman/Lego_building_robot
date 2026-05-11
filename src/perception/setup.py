@@ -23,6 +23,7 @@ setup(
             'process_pointcloud = perception.process_pointcloud:main',
             'interactive_plane = perception.interactive_plane:main',
             'aruco = perception.aruco_node:main',
+            'detect = perception.brick_detector:main',
         ],
     },
 )
