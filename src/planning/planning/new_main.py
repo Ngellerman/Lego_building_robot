@@ -332,29 +332,20 @@ class LegoBuilder(Node):
             self.execute_jobs()
 
     def _toggle_gripper(self):
-        def _do_toggle():
-            import time
-            self.get_logger().info('[GRIP] thread started — waiting for service.')
-            if not self.gripper_cli.wait_for_service(timeout_sec=5.0):
-                self.get_logger().error('[GRIP] service not available after 5 s — aborting.')
-                rclpy.shutdown()
-                return
-            self.get_logger().info('[GRIP] service ready — calling async.')
-            future = self.gripper_cli.call_async(Trigger.Request())
-            waited = 0
-            while rclpy.ok() and not future.done():
-                time.sleep(0.01)
-                waited += 1
-            self.get_logger().info(f'[GRIP] future resolved after ~{waited * 10} ms.')
-            try:
-                result = future.result()
-                self.get_logger().info(f'[GRIP] toggle OK — success={result.success} msg="{result.message}".')
-            except Exception as e:
-                self.get_logger().error(f'[GRIP] toggle raised: {e}')
-            self.get_logger().info('[GRIP] calling execute_jobs to continue queue.')
-            self.execute_jobs()
-        threading.Thread(target=_do_toggle, daemon=True).start()
-        self.get_logger().info('[GRIP] daemon thread launched.')
+        self.get_logger().info('[GRIP] waiting for service...')
+        if not self.gripper_cli.wait_for_service(timeout_sec=5.0):
+            self.get_logger().error('[GRIP] service not available after 5 s — aborting.')
+            rclpy.shutdown()
+            return
+        self.get_logger().info('[GRIP] calling toggle...')
+        future = self.gripper_cli.call_async(Trigger.Request())
+        rclpy.spin_until_future_complete(self, future, timeout_sec=5.0)
+        try:
+            result = future.result()
+            self.get_logger().info(f'[GRIP] toggled — success={result.success} msg="{result.message}".')
+        except Exception as e:
+            self.get_logger().error(f'[GRIP] toggle failed: {e}')
+        self.execute_jobs()
 
     def _execute_joint_trajectory(self, joint_traj):
         self.exec_ac.wait_for_server()
@@ -375,7 +366,7 @@ class LegoBuilder(Node):
         try:
             future.result().result
             self.get_logger().info('Execution complete.')
-            self.execute_jobs()
+            threading.Thread(target=self.execute_jobs, daemon=True).start()
         except Exception as e:
             self.get_logger().error(f'Execution failed: {e}')
 
