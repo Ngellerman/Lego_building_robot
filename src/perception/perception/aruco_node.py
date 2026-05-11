@@ -16,6 +16,7 @@ ARUCO_MARKER_SIZE_M = 0.05
 STUD_PITCH_M        = 0.016
 BASEPLATE_ROWS      = 16
 BASEPLATE_COLS      = 16
+N_POSE_SAMPLES      = 30
 
 ARUCO_TO_BP_OFFSET = np.array([
     -(BASEPLATE_COLS * STUD_PITCH_M - ARUCO_MARKER_SIZE_M / 2.0),
@@ -33,6 +34,8 @@ class ArucoNode(Node):
         self.fx = self.fy = self.cx = self.cy = None
         self.dist_coeffs = np.zeros(5, dtype=np.float32)
         self._last_tf: TransformStamped = None
+        self._pose_samples = []
+        self._tf_locked    = False
 
         self.declare_parameter('camera_frame', 'camera_color_optical_frame')
 
@@ -56,7 +59,7 @@ class ArucoNode(Node):
             self.dist_coeffs = np.array(msg.d, dtype=np.float32)
 
     def _image_cb(self, msg: Image):
-        if self.fx is None:
+        if self.fx is None or self._tf_locked:
             return
 
         rgb  = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
@@ -67,6 +70,7 @@ class ArucoNode(Node):
 
         aruco_dict   = cv2.aruco.Dictionary_get(ARUCO_DICT_ID)
         aruco_params = cv2.aruco.DetectorParameters_create()
+        aruco_params.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
         corners, ids, _ = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=aruco_params)
 
         if ids is None:
@@ -108,18 +112,42 @@ class ArucoNode(Node):
 
             pose_base = tf2_geometry_msgs.do_transform_pose(pose_cam, tf_to_base)
 
+            t_sample = np.array([pose_base.position.x,
+                                  pose_base.position.y,
+                                  pose_base.position.z])
+            q_sample = np.array([pose_base.orientation.x, pose_base.orientation.y,
+                                  pose_base.orientation.z, pose_base.orientation.w])
+            self._pose_samples.append((t_sample, q_sample))
+
+            n = len(self._pose_samples)
+            self.get_logger().info(f'Pose sample {n}/{N_POSE_SAMPLES} collected.')
+
+            if n < N_POSE_SAMPLES:
+                break
+
+            # Average translations only — orientation is fixed since the baseplate
+            # is always flat on the table and aligned with base_link axes.
+            translations = np.array([s[0] for s in self._pose_samples])
+            mean_t = translations.mean(axis=0)
+
             t = TransformStamped()
             t.header.stamp            = self.get_clock().now().to_msg()
             t.header.frame_id         = 'base_link'
             t.child_frame_id          = 'baseplate_frame'
-            t.transform.translation.x = pose_base.position.x
-            t.transform.translation.y = pose_base.position.y
-            t.transform.translation.z = pose_base.position.z
-            t.transform.rotation      = pose_base.orientation
+            t.transform.translation.x = float(mean_t[0])
+            t.transform.translation.y = float(mean_t[1])
+            t.transform.translation.z = float(mean_t[2])
+            t.transform.rotation.x    = 0.0
+            t.transform.rotation.y    = 0.0
+            t.transform.rotation.z    = 0.0
+            t.transform.rotation.w    = 1.0
 
-            self._last_tf = t
+            self._last_tf   = t
+            self._tf_locked = True
             self.tf_broadcaster.sendTransform(t)
-            self.get_logger().info('baseplate_frame TF published.', throttle_duration_sec=2.0)
+            self.get_logger().info(
+                f'baseplate_frame locked from {N_POSE_SAMPLES} averaged samples. '
+                f'Position: ({mean_t[0]:.4f}, {mean_t[1]:.4f}, {mean_t[2]:.4f})')
             break
 
     def _republish_tf(self):
