@@ -18,8 +18,8 @@ BASEPLATE_COLS      = 16
 N_POSE_SAMPLES      = 30
 
 ARUCO_TO_BP_OFFSET = np.array([
-    3.5,
-    3.5,
+    0.035,
+    0.035,
     0.0,
 ], dtype=np.float64)
 
