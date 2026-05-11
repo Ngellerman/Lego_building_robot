@@ -201,7 +201,7 @@ class LegoBuilder(Node):
             return
 
         grasp = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + 0.005, pqx, pqy, pqz, pqw)
+            self.joint_state, px, py, pz + 0.025, pqx, pqy, pqz, pqw)
         if grasp is None:
             self.get_logger().error(f'IK failed: grasp brick {self.brick_idx}')
             return
@@ -216,7 +216,7 @@ class LegoBuilder(Node):
             return
 
         place = self.ik_planner.compute_ik(
-            SAFE_JOINT_STATE, lx, ly, lz + 0.005, lqx, lqy, lqz, lqw)
+            SAFE_JOINT_STATE, lx, ly, lz + 0.033, lqx, lqy, lqz, lqw)
         if place is None:
             self.get_logger().error(f'IK failed: place brick {self.brick_idx}')
             return
