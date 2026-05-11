@@ -203,6 +203,20 @@ class LegoBuilder(Node):
                 self.get_logger().info(f'Scanning for: "{label}"')
                 self._detection_event.clear()
 
+                with self._detection_lock:
+                    snapshot = list(self._latest_detections)
+                if snapshot:
+                    self.get_logger().info(
+                        f'Detections at scan pose ({len(snapshot)} brick(s)):')
+                    for i, d in enumerate(snapshot):
+                        p = d['pose']
+                        self.get_logger().info(
+                            f'  [{i}] color={d["color"]} shape={d["shape"]} '
+                            f'height={d["height_m"]:.4f}m '
+                            f'pos=({p.position.x:.3f}, {p.position.y:.3f}, {p.position.z:.3f})')
+                else:
+                    self.get_logger().info('No detections yet at scan pose.')
+
                 deadline = time.time() + BRICK_SCAN_TIMEOUT_S
                 while time.time() < deadline:
                     self._detection_event.wait(timeout=1.0)
