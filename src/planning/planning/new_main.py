@@ -7,7 +7,6 @@ from pathlib import Path
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
-from rclpy.duration import Duration
 from control_msgs.action import FollowJointTrajectory
 from geometry_msgs.msg import Pose
 from sensor_msgs.msg import JointState
@@ -133,7 +132,7 @@ class LegoBuilder(Node):
                     try:
                         self.baseplate_tf = self.tf_buffer.lookup_transform(
                             'base_link', 'baseplate_frame',
-                            rclpy.time.Time(), timeout=Duration(seconds=1.0))
+                            rclpy.time.Time())
                         self.get_logger().info('ArUco detected — baseplate_frame acquired.')
                         self.phase = Phase.MOVE_TO_BRICK_SCAN
                         self._advance()

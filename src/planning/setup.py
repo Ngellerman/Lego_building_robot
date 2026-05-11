@@ -22,7 +22,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'main = planning.main:main',
+            'main = planning.new_main:main',
             'tf = planning.static_tf_transform:main',
             'ik = planning.ik:main',
             'transform_cube_pose = planning.transform_cube_pose:main',
