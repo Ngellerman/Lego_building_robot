@@ -18,6 +18,27 @@ from planning.ik import IKPlanner
 ARUCO_SCAN_POSE = (-0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
 BRICK_SCAN_POSE = (0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
 
+_JOINT_NAMES = [
+    'shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
+    'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint',
+]
+_SAFE_POSITIONS = [
+    4.739357948303223,    # shoulder_pan_joint
+    -1.841379781762594,   # shoulder_lift_joint
+    -1.435956358909607,   # elbow_joint
+    -1.3928968769362946,  # wrist_1_joint
+    1.593016266822815,    # wrist_2_joint
+    -3.146789614354269,   # wrist_3_joint
+]
+
+def _make_safe_joint_state():
+    js = JointState()
+    js.name = _JOINT_NAMES
+    js.position = _SAFE_POSITIONS
+    return js
+
+SAFE_JOINT_STATE = _make_safe_joint_state()
+
 
 class Phase(Enum):
     MOVE_TO_ARUCO      = auto()
@@ -104,11 +125,12 @@ class LegoBuilder(Node):
 
         elif self.phase == Phase.MOVE_TO_BRICK_SCAN:
             def _go_scan():
-                js = self.ik_planner.compute_ik(self.joint_state, *BRICK_SCAN_POSE)
+                js = self.ik_planner.compute_ik(SAFE_JOINT_STATE, *BRICK_SCAN_POSE)
                 if js is None:
                     self.get_logger().error('IK failed for brick scan pose.')
                     rclpy.shutdown()
                     return
+                self.job_queue.append(SAFE_JOINT_STATE)
                 self.job_queue.append(js)
                 self.execute_jobs()
             threading.Thread(target=_go_scan, daemon=True).start()
