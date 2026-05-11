@@ -165,16 +165,14 @@ class LegoBuilder(Node):
                 self.phase = Phase.DONE
                 self._advance()
                 return
-            def _build_and_run():
-                self._build_pick_place_queue()
-                if self.job_queue:
-                    self.execute_jobs()
-                else:
-                    self.get_logger().warn(f'Skipping brick {self.brick_idx} (IK failed).')
-                    self.brick_idx += 1
-                    self.phase = Phase.MOVE_TO_BRICK_SCAN
-                    self._advance()
-            threading.Thread(target=_build_and_run, daemon=True).start()
+            self._build_pick_place_queue()
+            if self.job_queue:
+                threading.Thread(target=self.execute_jobs, daemon=True).start()
+            else:
+                self.get_logger().warn(f'Skipping brick {self.brick_idx} (IK failed).')
+                self.brick_idx += 1
+                self.phase = Phase.MOVE_TO_BRICK_SCAN
+                self._advance()
 
         elif self.phase == Phase.DONE:
             self.get_logger().info('All bricks placed. Shutting down.')
