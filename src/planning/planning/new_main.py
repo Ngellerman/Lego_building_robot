@@ -332,12 +332,11 @@ class LegoBuilder(Node):
             self.execute_jobs()
 
     def _toggle_gripper(self):
-        self.get_logger().info('[GRIP] waiting for service...')
+        import time
         if not self.gripper_cli.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error('[GRIP] service not available after 5 s — aborting.')
+            self.get_logger().error('[GRIP] service not available — aborting.')
             rclpy.shutdown()
             return
-        self.get_logger().info('[GRIP] calling toggle...')
         future = self.gripper_cli.call_async(Trigger.Request())
         rclpy.spin_until_future_complete(self, future, timeout_sec=5.0)
         try:
@@ -345,6 +344,7 @@ class LegoBuilder(Node):
             self.get_logger().info(f'[GRIP] toggled — success={result.success} msg="{result.message}".')
         except Exception as e:
             self.get_logger().error(f'[GRIP] toggle failed: {e}')
+        time.sleep(0.5)
         self.execute_jobs()
 
     def _execute_joint_trajectory(self, joint_traj):
