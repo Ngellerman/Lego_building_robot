@@ -86,7 +86,9 @@ class ArucoNode(Node):
             tvec = tvecs[0][0]
 
             R_mat      = cv2.Rodrigues(rvec)[0]
-            origin_cam = tvec + R_mat @ ARUCO_TO_BP_OFFSET
+            # TODO: re-enable offset once axis directions are confirmed
+            # origin_cam = tvec + R_mat @ ARUCO_TO_BP_OFFSET
+            origin_cam = tvec
 
             camera_frame = self.get_parameter('camera_frame').get_parameter_value().string_value
             try:
