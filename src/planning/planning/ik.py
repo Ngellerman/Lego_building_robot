@@ -71,6 +71,7 @@ class IKPlanner(Node):
         ik_req.ik_request.group_name = 'ur_manipulator'
         ik_req.ik_request.ik_link_name = 'wrist_3_link'
         ik_req.ik_request.pose_stamped = pose
+        ik_req.ik_request.robot_state.joint_state = current_joint_state
         
         future = self.ik_client.call_async(ik_req)
         self._spin_future(future)
