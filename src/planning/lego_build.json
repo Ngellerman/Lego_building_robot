@@ -4,7 +4,7 @@
     "block_id": "b0",
     "type": "2x4",
     "color": "blue",
-    "layer": 0,
+    "layer": 1,
     "grid_x": 10,
     "grid_z": 8,
     "rotation_deg": 0
@@ -14,7 +14,7 @@
     "block_id": "b1",
     "type": "2x4",
     "color": "yellow",
-    "layer": 0,
+    "layer": 1,
     "grid_x": 12,
     "grid_z": 10,
     "rotation_deg": 90

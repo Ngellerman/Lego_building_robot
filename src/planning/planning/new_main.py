@@ -84,7 +84,7 @@ def _load_bricks(json_path: Path, picks_path: Path = None) -> list[dict]:
                 'place': {
                     'x': entry['grid_x'] * -STUD_PITCH_M,
                     'y': entry['grid_z'] * STUD_PITCH_M,
-                    'z': entry['layer']  * LEGO_LAYER_HEIGHT_M,
+                    'z': 0.14,
                     'qx': qx, 'qy': qy, 'qz': qz, 'qw': qw,
                     'frame': 'baseplate',
                 },
@@ -331,20 +331,22 @@ class LegoBuilder(Node):
             self.execute_jobs()
 
     def _toggle_gripper(self):
-        if not self.gripper_cli.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error('Gripper service not available.')
-            rclpy.shutdown()
-            return
-        future = self.gripper_cli.call_async(Trigger.Request())
-        future.add_done_callback(self._on_gripper_done)
-
-    def _on_gripper_done(self, future):
-        try:
-            future.result()
-            self.get_logger().info('Gripper toggled.')
-        except Exception as e:
-            self.get_logger().error(f'Gripper toggle failed: {e}')
-        self.execute_jobs()
+        def _do_toggle():
+            import time
+            if not self.gripper_cli.wait_for_service(timeout_sec=5.0):
+                self.get_logger().error('Gripper service not available.')
+                rclpy.shutdown()
+                return
+            future = self.gripper_cli.call_async(Trigger.Request())
+            while rclpy.ok() and not future.done():
+                time.sleep(0.01)
+            try:
+                future.result()
+                self.get_logger().info('Gripper toggled.')
+            except Exception as e:
+                self.get_logger().error(f'Gripper toggle failed: {e}')
+            self.execute_jobs()
+        threading.Thread(target=_do_toggle, daemon=True).start()
 
     def _execute_joint_trajectory(self, joint_traj):
         self.exec_ac.wait_for_server()
