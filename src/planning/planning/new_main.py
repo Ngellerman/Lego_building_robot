@@ -210,25 +210,26 @@ class LegoBuilder(Node):
             self.joint_state, px, py, pz + 0.15, pqx, pqy, pqz, pqw)
 
         pre_place = self.ik_planner.compute_ik(
-            self.joint_state, lx, ly, lz + 0.08, lqx, lqy, lqz, lqw)
+            SAFE_JOINT_STATE, lx, ly, lz + 0.08, lqx, lqy, lqz, lqw)
         if pre_place is None:
             self.get_logger().error(f'IK failed: pre-place brick {self.brick_idx}')
             return
 
         place = self.ik_planner.compute_ik(
-            self.joint_state, lx, ly, lz + 0.005, lqx, lqy, lqz, lqw)
+            SAFE_JOINT_STATE, lx, ly, lz + 0.005, lqx, lqy, lqz, lqw)
         if place is None:
             self.get_logger().error(f'IK failed: place brick {self.brick_idx}')
             return
 
         retract_place = self.ik_planner.compute_ik(
-            self.joint_state, lx, ly, lz + 0.15, lqx, lqy, lqz, lqw)
+            SAFE_JOINT_STATE, lx, ly, lz + 0.15, lqx, lqy, lqz, lqw)
 
         self.job_queue.append(pre_grasp)
         self.job_queue.append(grasp)
         self.job_queue.append('toggle_grip')   # close
         if retract_pick:
             self.job_queue.append(retract_pick)
+        self.job_queue.append(SAFE_JOINT_STATE)
         self.job_queue.append(pre_place)
         self.job_queue.append(place)
         self.job_queue.append('toggle_grip')   # open
