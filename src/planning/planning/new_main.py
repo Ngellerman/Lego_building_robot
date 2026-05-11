@@ -307,8 +307,14 @@ class LegoBuilder(Node):
             rclpy.shutdown()
             return
         future = self.gripper_cli.call_async(Trigger.Request())
-        rclpy.spin_until_future_complete(self, future, timeout_sec=2.0)
-        self.get_logger().info('Gripper toggled.')
+        future.add_done_callback(self._on_gripper_done)
+
+    def _on_gripper_done(self, future):
+        try:
+            future.result()
+            self.get_logger().info('Gripper toggled.')
+        except Exception as e:
+            self.get_logger().error(f'Gripper toggle failed: {e}')
         self.execute_jobs()
 
     def _execute_joint_trajectory(self, joint_traj):
