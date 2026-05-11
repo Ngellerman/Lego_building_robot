@@ -217,9 +217,8 @@ class LegoBuilder(Node):
         x  = pose_dict['x'];            y  = pose_dict['y'];  z  = pose_dict['z']
         qx = pose_dict.get('qx', 0.0); qy = pose_dict.get('qy', 1.0)
         qz = pose_dict.get('qz', 0.0); qw = pose_dict.get('qw', 0.0)
-        # TODO: re-enable transform once baseplate_frame axes are confirmed
-        # if pose_dict.get('frame') == 'baseplate':
-        #     return self._transform_to_base(x, y, z, qx, qy, qz, qw)
+        if pose_dict.get('frame') == 'baseplate':
+            return self._transform_to_base(x, y, z, qx, qy, qz, qw)
         return x, y, z, qx, qy, qz, qw
 
     def _build_pick_place_queue(self):
