@@ -344,7 +344,7 @@ class LegoBuilder(Node):
             self.get_logger().info(f'[GRIP] toggled — success={result.success} msg="{result.message}".')
         except Exception as e:
             self.get_logger().error(f'[GRIP] toggle failed: {e}')
-        time.sleep(0.5)
+        time.sleep(2.0)
         self.execute_jobs()
 
     def _execute_joint_trajectory(self, joint_traj):
