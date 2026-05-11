@@ -7,8 +7,12 @@ from pathlib import Path
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
+from rclpy.duration import Duration
 from control_msgs.action import FollowJointTrajectory
+from geometry_msgs.msg import Pose
 from sensor_msgs.msg import JointState
+import tf2_ros
+import tf2_geometry_msgs
 import threading
 from planning.ik import IKPlanner
 
@@ -75,8 +79,12 @@ class LegoBuilder(Node):
         self.brick_idx = 0
         self.phase     = Phase.MOVE_TO_ARUCO
 
-        self.joint_state = None
-        self.job_queue   = []
+        self.joint_state  = None
+        self.job_queue    = []
+        self.baseplate_tf = None
+
+        self.tf_buffer   = tf2_ros.Buffer()
+        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
 
         self.get_logger().info(f'Loaded {len(self.bricks)} brick(s) from {bricks_json}')
 
@@ -118,10 +126,21 @@ class LegoBuilder(Node):
             threading.Thread(target=_go_aruco, daemon=True).start()
 
         elif self.phase == Phase.WAIT_ARUCO_SCAN:
-            # SIMULATED: skip real ArUco detection
-            self.get_logger().info('[SIMULATE] ArUco scan confirmed.')
-            self.phase = Phase.MOVE_TO_BRICK_SCAN
-            self._advance()
+            def _wait_for_aruco():
+                import time
+                self.get_logger().info('Waiting for baseplate_frame TF...')
+                while rclpy.ok():
+                    try:
+                        self.baseplate_tf = self.tf_buffer.lookup_transform(
+                            'base_link', 'baseplate_frame',
+                            rclpy.time.Time(), timeout=Duration(seconds=1.0))
+                        self.get_logger().info('ArUco detected — baseplate_frame acquired.')
+                        self.phase = Phase.MOVE_TO_BRICK_SCAN
+                        self._advance()
+                        return
+                    except (tf2_ros.LookupException, tf2_ros.ExtrapolationException):
+                        time.sleep(0.2)
+            threading.Thread(target=_wait_for_aruco, daemon=True).start()
 
         elif self.phase == Phase.MOVE_TO_BRICK_SCAN:
             def _go_scan():
@@ -178,17 +197,37 @@ class LegoBuilder(Node):
 
     # ── Queue construction ──────────────────────────────────────────────────────
 
+    def _transform_to_base(self, x, y, z, qx, qy, qz, qw):
+        """Transform a pose from baseplate_frame into base_link."""
+        pose = Pose()
+        pose.position.x = x
+        pose.position.y = y
+        pose.position.z = z
+        pose.orientation.x = qx
+        pose.orientation.y = qy
+        pose.orientation.z = qz
+        pose.orientation.w = qw
+        p = tf2_geometry_msgs.do_transform_pose(pose, self.baseplate_tf)
+        return p.position.x, p.position.y, p.position.z, \
+               p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w
+
+    def _resolve_pose(self, pose_dict):
+        """Return (x,y,z,qx,qy,qz,qw) in base_link, transforming if frame=='baseplate'."""
+        x  = pose_dict['x'];            y  = pose_dict['y'];  z  = pose_dict['z']
+        qx = pose_dict.get('qx', 0.0); qy = pose_dict.get('qy', 1.0)
+        qz = pose_dict.get('qz', 0.0); qw = pose_dict.get('qw', 0.0)
+        if pose_dict.get('frame') == 'baseplate':
+            return self._transform_to_base(x, y, z, qx, qy, qz, qw)
+        return x, y, z, qx, qy, qz, qw
+
     def _build_pick_place_queue(self):
         brick = self.bricks[self.brick_idx]
         pk    = brick['pick']
         pl    = brick['place']
         label = brick.get('label', f'brick_{self.brick_idx}')
 
-        px, py, pz = pk['x'], pk['y'], pk['z']
-        pqx, pqy, pqz, pqw = pk.get('qx', 0.0), pk.get('qy', 1.0), pk.get('qz', 0.0), pk.get('qw', 0.0)
-
-        lx, ly, lz = pl['x'], pl['y'], pl['z']
-        lqx, lqy, lqz, lqw = pl.get('qx', 0.0), pl.get('qy', 1.0), pl.get('qz', 0.0), pl.get('qw', 0.0)
+        px, py, pz, pqx, pqy, pqz, pqw = self._resolve_pose(pk)
+        lx, ly, lz, lqx, lqy, lqz, lqw = self._resolve_pose(pl)
 
         self.get_logger().info(
             f'[Brick {self.brick_idx}] {label} | '
