@@ -23,7 +23,7 @@ ARUCO_SCAN_POSE = (-0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
 BRICK_SCAN_POSE = (0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
 
 STUD_PITCH_M        = 0.016   # 16 mm per stud
-LEGO_LAYER_HEIGHT_M = 0.0096  # 9.6 mm per brick layer
+LEGO_LAYER_HEIGHT_M = 0.015  # 9.6 mm per brick layer
 
 
 def _rotation_deg_to_quat(deg):
@@ -82,7 +82,7 @@ def _load_bricks(json_path: Path, picks_path: Path = None) -> list[dict]:
                 'label': f"{entry.get('color', '')} {entry.get('type', '')}".strip(),
                 'pick':  pick,
                 'place': {
-                    'x': entry['grid_x'] * STUD_PITCH_M,
+                    'x': entry['grid_x'] * -STUD_PITCH_M,
                     'y': entry['grid_z'] * STUD_PITCH_M,
                     'z': entry['layer']  * LEGO_LAYER_HEIGHT_M,
                     'qx': qx, 'qy': qy, 'qz': qz, 'qw': qw,
