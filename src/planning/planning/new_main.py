@@ -9,8 +9,9 @@ import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
 from control_msgs.action import FollowJointTrajectory
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, PoseArray
 from sensor_msgs.msg import JointState
+from std_msgs.msg import String
 import tf2_ros
 import tf2_geometry_msgs
 import threading
@@ -24,6 +25,13 @@ BRICK_SCAN_POSE = (0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
 
 STUD_PITCH_M        = 0.016   # 16 mm per stud
 LEGO_LAYER_HEIGHT_M = 0.015  # 9.6 mm per brick layer
+
+_KNOWN_COLORS = {
+    'red', 'orange', 'yellow', 'light_green', 'blue',
+    'mint', 'white', 'purple', 'brown', 'pink', 'light_blue',
+}
+
+BRICK_SCAN_TIMEOUT_S = 15.0  # seconds to wait for a matching brick detection
 
 
 def _rotation_deg_to_quat(deg):
@@ -107,6 +115,11 @@ class LegoBuilder(Node):
         self.job_queue    = []
         self.baseplate_tf = None
 
+        self._latest_poses       = []
+        self._latest_detections  = []
+        self._detection_lock     = threading.Lock()
+        self._detection_event    = threading.Event()
+
         self.tf_buffer   = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
 
@@ -114,6 +127,10 @@ class LegoBuilder(Node):
 
         self.joint_state_sub = self.create_subscription(
             JointState, '/joint_states', self._joint_state_cb, 1)
+        self.create_subscription(
+            PoseArray, '/detected_bricks', self._detection_pose_cb, 10)
+        self.create_subscription(
+            String, '/detected_bricks_meta', self._detection_meta_cb, 10)
         self.exec_ac = ActionClient(
             self, FollowJointTrajectory,
             '/scaled_joint_trajectory_controller/follow_joint_trajectory')
@@ -179,11 +196,45 @@ class LegoBuilder(Node):
             threading.Thread(target=_go_scan, daemon=True).start()
 
         elif self.phase == Phase.WAIT_BRICK_SCAN:
-            # SIMULATED: brick poses already loaded from JSON
-            remaining = len(self.bricks) - self.brick_idx
-            self.get_logger().info(f'[SIMULATE] Brick scan confirmed. {remaining} brick(s) remaining.')
-            self.phase = Phase.PICK_AND_PLACE
-            self._advance()
+            def _wait_for_detection():
+                import time
+                brick = self.bricks[self.brick_idx]
+                label = brick.get('label', '')
+                self.get_logger().info(f'Scanning for: "{label}"')
+                self._detection_event.clear()
+
+                deadline = time.time() + BRICK_SCAN_TIMEOUT_S
+                while time.time() < deadline:
+                    self._detection_event.wait(timeout=1.0)
+                    self._detection_event.clear()
+                    match = self._match_brick(label)
+                    if match is None:
+                        continue
+                    p = match['pose']
+                    brick['pick'] = {
+                        'x':     p.position.x,
+                        'y':     p.position.y,
+                        'z':     match['height_m'],
+                        'qx':    p.orientation.x,
+                        'qy':    p.orientation.y,
+                        'qz':    p.orientation.z,
+                        'qw':    p.orientation.w,
+                        'frame': 'baseplate',
+                    }
+                    self.get_logger().info(
+                        f'Matched "{label}" at baseplate_frame '
+                        f'({p.position.x:.3f}, {p.position.y:.3f}, z={match["height_m"]:.3f})')
+                    self.phase = Phase.PICK_AND_PLACE
+                    self._advance()
+                    return
+
+                self.get_logger().error(
+                    f'No match for "{label}" after {BRICK_SCAN_TIMEOUT_S:.0f}s — skipping.')
+                self.brick_idx += 1
+                self.phase = Phase.MOVE_TO_BRICK_SCAN
+                self._advance()
+
+            threading.Thread(target=_wait_for_detection, daemon=True).start()
 
         elif self.phase == Phase.PICK_AND_PLACE:
             if self.brick_idx >= len(self.bricks):
@@ -370,6 +421,55 @@ class LegoBuilder(Node):
             self.execute_jobs()
         except Exception as e:
             self.get_logger().error(f'Execution failed: {e}')
+
+    # ── Detection callbacks & matching ──────────────────────────────────────────
+
+    def _detection_pose_cb(self, msg: PoseArray):
+        self._latest_poses = msg.poses
+
+    def _detection_meta_cb(self, msg: String):
+        meta = json.loads(msg.data)
+        poses = self._latest_poses
+        with self._detection_lock:
+            self._latest_detections = [
+                {**m, 'pose': poses[i]}
+                for i, m in enumerate(meta)
+                if i < len(poses)
+            ]
+        self._detection_event.set()
+
+    def _parse_label(self, label: str):
+        """Parse 'blue 2x4' or 'light_green 2x4' → ('blue', (2, 4))."""
+        parts = label.lower().split()
+        shape = None
+        for part in parts:
+            if 'x' in part:
+                try:
+                    r, c = part.split('x', 1)
+                    shape = (int(r), int(c))
+                except ValueError:
+                    pass
+                break
+        color_parts = [p for p in parts if 'x' not in p]
+        color = '_'.join(color_parts)
+        if color not in _KNOWN_COLORS:
+            color = None
+        return color, shape
+
+    def _match_brick(self, label: str) -> dict | None:
+        """Return the first detected brick matching the needed color and shape."""
+        color, shape = self._parse_label(label)
+        if color is None or shape is None:
+            self.get_logger().warn(f'Could not parse label "{label}"')
+            return None
+        needed = tuple(sorted(shape))
+        with self._detection_lock:
+            for d in self._latest_detections:
+                if d['color'] != color:
+                    continue
+                if tuple(sorted(d['shape'])) == needed:
+                    return d
+        return None
 
     # ── Callbacks ───────────────────────────────────────────────────────────────
 

@@ -337,7 +337,7 @@ class BrickDetectorNode(Node):
                 'color':       brick['color'],
                 'shape':       list(brick['shape']),
                 'height_type': brick['height_type'],
-                'height_m':    round(brick['height_m'] * 1000, 1),
+                'height_m':    round(brick['height_m'], 4),
             })
 
         self.pose_pub.publish(pose_array)
