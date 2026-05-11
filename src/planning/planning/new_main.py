@@ -337,6 +337,7 @@ class LegoBuilder(Node):
             self.get_logger().error('[GRIP] service not available — aborting.')
             rclpy.shutdown()
             return
+        time.sleep(2.0)
         future = self.gripper_cli.call_async(Trigger.Request())
         rclpy.spin_until_future_complete(self, future, timeout_sec=5.0)
         try:
