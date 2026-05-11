@@ -1,0 +1,12 @@
+build/
+**/build/
+install/
+**/install/
+log/
+**/log/
+.vscode/
+__pycache__/
+.DS_Store
+venv/
+artifacts/
+artifacts_cv/
