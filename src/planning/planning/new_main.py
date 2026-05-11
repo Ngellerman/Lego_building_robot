@@ -15,8 +15,8 @@ from planning.ik import IKPlanner
 
 # TODO: replace with real Cartesian poses (x, y, z, qx, qy, qz, qw) in base_link frame
 # Default orientation (0, 1, 0, 0) points the gripper straight down.
-ARUCO_SCAN_POSE = (0.30, 0.00, 0.60, 0.0, 1.0, 0.0, 0.0)
-BRICK_SCAN_POSE = (0.30, 0.00, 0.45, 0.0, 1.0, 0.0, 0.0)
+ARUCO_SCAN_POSE = (-0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
+BRICK_SCAN_POSE = (0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
 
 
 class Phase(Enum):
