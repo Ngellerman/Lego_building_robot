@@ -8,7 +8,6 @@ import tf2_ros
 from geometry_msgs.msg import TransformStamped
 from sensor_msgs.msg import Image, CameraInfo
 from cv_bridge import CvBridge
-from scipy.spatial.transform import Rotation
 
 ARUCO_DICT_ID       = cv2.aruco.DICT_4X4_50
 ARUCO_MARKER_ID     = 0
@@ -80,14 +79,9 @@ class ArucoNode(Node):
             if mid != ARUCO_MARKER_ID:
                 continue
 
-            rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(
+            _, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(
                 [corners[i]], ARUCO_MARKER_SIZE_M, cam_mat, self.dist_coeffs)
-            rvec = rvecs[0][0]
             tvec = tvecs[0][0]
-
-            R_mat      = cv2.Rodrigues(rvec)[0]
-            # TODO: re-enable offset once axis directions are confirmed
-            origin_cam = tvec + R_mat @ ARUCO_TO_BP_OFFSET
 
             camera_frame = self.get_parameter('camera_frame').get_parameter_value().string_value
             try:
@@ -101,24 +95,23 @@ class ArucoNode(Node):
 
             from geometry_msgs.msg import Pose
             import tf2_geometry_msgs
+
+            # Transform ArUco tag center into base_link.
             pose_cam = Pose()
-            pose_cam.position.x = float(origin_cam[0])
-            pose_cam.position.y = float(origin_cam[1])
-            pose_cam.position.z = float(origin_cam[2])
-            q_bp = Rotation.from_matrix(R_mat).as_quat()
-            pose_cam.orientation.x = float(q_bp[0])
-            pose_cam.orientation.y = float(q_bp[1])
-            pose_cam.orientation.z = float(q_bp[2])
-            pose_cam.orientation.w = float(q_bp[3])
+            pose_cam.position.x = float(tvec[0])
+            pose_cam.position.y = float(tvec[1])
+            pose_cam.position.z = float(tvec[2])
+            pose_cam.orientation.w = 1.0
+            aruco_in_base = tf2_geometry_msgs.do_transform_pose(pose_cam, tf_to_base)
 
-            pose_base = tf2_geometry_msgs.do_transform_pose(pose_cam, tf_to_base)
-
-            t_sample = np.array([pose_base.position.x,
-                                  pose_base.position.y,
-                                  pose_base.position.z])
-            q_sample = np.array([pose_base.orientation.x, pose_base.orientation.y,
-                                  pose_base.orientation.z, pose_base.orientation.w])
-            self._pose_samples.append((t_sample, q_sample))
+            # Apply offset directly in base_link frame — no R_mat needed since
+            # baseplate axes are aligned with base_link.
+            t_sample = np.array([
+                aruco_in_base.position.x + ARUCO_TO_BP_OFFSET[0],
+                aruco_in_base.position.y + ARUCO_TO_BP_OFFSET[1],
+                aruco_in_base.position.z + ARUCO_TO_BP_OFFSET[2],
+            ])
+            self._pose_samples.append(t_sample)
 
             n = len(self._pose_samples)
             self.get_logger().info(f'Pose sample {n}/{N_POSE_SAMPLES} collected.')
@@ -128,8 +121,7 @@ class ArucoNode(Node):
 
             # Average translations only — orientation is fixed since the baseplate
             # is always flat on the table and aligned with base_link axes.
-            translations = np.array([s[0] for s in self._pose_samples])
-            mean_t = translations.mean(axis=0)
+            mean_t = np.array(self._pose_samples).mean(axis=0)
 
             t = TransformStamped()
             t.header.stamp            = self.get_clock().now().to_msg()
