@@ -24,7 +24,19 @@ ARUCO_SCAN_POSE = (-0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
 BRICK_SCAN_POSE = (0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
 
 STUD_PITCH_M        = 0.016   # 16 mm per stud
-LEGO_LAYER_HEIGHT_M = 0.015  # 9.6 mm per brick layer
+LEGO_LAYER_HEIGHT_M = 0.0192  # 19.2 mm per normal brick layer
+
+# ── Pick offsets (relative to detected top-of-brick surface in base_link) ───
+PICK_BRICK_HEIGHT_M = 0.0192  # height of brick top above table in baseplate_frame (tune this)
+PICK_APPROACH_M     = 0.200   # pre-grasp hover height above brick top
+PICK_GRASP_M        = 0.143   # gripper contact height above brick top
+PICK_RETRACT_M      = 0.200   # post-pick lift height above brick top
+
+# ── Place offsets (relative to target place surface in base_link) ────────────
+PLACE_APPROACH_M       = 0.080   # pre-place hover height above surface
+PLACE_DEPOSIT_M        = 0.015   # final descent onto stud
+PLACE_RETRACT_M        = 0.150   # post-place lift height above surface
+BASEPLATE_SURFACE_Z_M  = 0.14    # z of layer-1 surface in baseplate_frame — tune this
 
 _KNOWN_COLORS = {
     'red', 'orange', 'yellow', 'light_green', 'blue',
@@ -92,7 +104,7 @@ def _load_bricks(json_path: Path, picks_path: Path = None) -> list[dict]:
                 'place': {
                     'x': entry['grid_x'] * -STUD_PITCH_M,
                     'y': entry['grid_z'] * STUD_PITCH_M,
-                    'z': 0.14,
+                    'z': BASEPLATE_SURFACE_Z_M + (entry.get('layer', 1) - 1) * LEGO_LAYER_HEIGHT_M,
                     'qx': qx, 'qy': qy, 'qz': qz, 'qw': qw,
                     'frame': 'baseplate',
                 },
@@ -240,7 +252,7 @@ class LegoBuilder(Node):
                     brick['pick'] = {
                         'x':     p.position.x,
                         'y':     p.position.y,
-                        'z':     match['height_m'],
+                        'z':     PICK_BRICK_HEIGHT_M,
                         'qx':    pqx,
                         'qy':    pqy,
                         'qz':    pqz,
@@ -341,34 +353,34 @@ class LegoBuilder(Node):
             f'pick=({px:.3f},{py:.3f},{pz:.3f}) place=({lx:.3f},{ly:.3f},{lz:.3f})')
 
         pre_grasp = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + 0.2, pqx, pqy, pqz, pqw)
+            self.joint_state, px, py, pz + PICK_APPROACH_M, pqx, pqy, pqz, pqw)
         if pre_grasp is None:
             self.get_logger().error(f'IK failed: pre-grasp brick {self.brick_idx}')
             return
 
         grasp = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + 0.143, pqx, pqy, pqz, pqw)
+            self.joint_state, px, py, pz + PICK_GRASP_M, pqx, pqy, pqz, pqw)
         if grasp is None:
             self.get_logger().error(f'IK failed: grasp brick {self.brick_idx}')
             return
 
         retract_pick = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + 0.18, pqx, pqy, pqz, pqw)
+            self.joint_state, px, py, pz + PICK_RETRACT_M, pqx, pqy, pqz, pqw)
 
         pre_place = self.ik_planner.compute_ik(
-            SAFE_JOINT_STATE, lx, ly, lz + 0.08, lqx, lqy, lqz, lqw)
+            SAFE_JOINT_STATE, lx, ly, lz + PLACE_APPROACH_M, lqx, lqy, lqz, lqw)
         if pre_place is None:
             self.get_logger().error(f'IK failed: pre-place brick {self.brick_idx}')
             return
 
         place = self.ik_planner.compute_ik(
-            SAFE_JOINT_STATE, lx, ly, lz + 0.015, lqx, lqy, lqz, lqw)
+            SAFE_JOINT_STATE, lx, ly, lz + PLACE_DEPOSIT_M, lqx, lqy, lqz, lqw)
         if place is None:
             self.get_logger().error(f'IK failed: place brick {self.brick_idx}')
             return
 
         retract_place = self.ik_planner.compute_ik(
-            SAFE_JOINT_STATE, lx, ly, lz + 0.15, lqx, lqy, lqz, lqw)
+            SAFE_JOINT_STATE, lx, ly, lz + PLACE_RETRACT_M, lqx, lqy, lqz, lqw)
 
         self.job_queue.append(pre_grasp)
         self.job_queue.append(grasp)
