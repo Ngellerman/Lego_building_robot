@@ -97,7 +97,7 @@ class BrickDetectorNode(Node):
 
         self.declare_parameter('camera_frame', 'camera_depth_optical_frame')
 
-        self.create_timer(2.0, self.process)
+        self.create_timer(3.0, self.process)
         self.get_logger().info('BrickDetectorNode initialized.')
 
     def pointcloud_callback(self, msg: PointCloud2):
