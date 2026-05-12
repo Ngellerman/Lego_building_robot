@@ -347,7 +347,7 @@ class LegoBuilder(Node):
             return
 
         grasp = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + 0.14, pqx, pqy, pqz, pqw)
+            self.joint_state, px, py, pz + 0.143, pqx, pqy, pqz, pqw)
         if grasp is None:
             self.get_logger().error(f'IK failed: grasp brick {self.brick_idx}')
             return
