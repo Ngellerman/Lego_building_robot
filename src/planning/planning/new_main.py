@@ -11,7 +11,7 @@ from rclpy.action import ActionClient
 from control_msgs.action import FollowJointTrajectory
 from geometry_msgs.msg import Pose, PoseArray
 from sensor_msgs.msg import JointState
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 import tf2_ros
 import tf2_geometry_msgs
 import threading
@@ -132,6 +132,8 @@ class LegoBuilder(Node):
             PoseArray, '/detected_bricks', self._detection_pose_cb, 10)
         self.create_subscription(
             String, '/detected_bricks_meta', self._detection_meta_cb, 10)
+        self._detection_enable_pub = self.create_publisher(
+            Bool, '/brick_detection_enabled', 1)
         self.exec_ac = ActionClient(
             self, FollowJointTrajectory,
             '/scaled_joint_trajectory_controller/follow_joint_trajectory')
@@ -202,7 +204,7 @@ class LegoBuilder(Node):
                 brick = self.bricks[self.brick_idx]
                 label = brick.get('label', '')
                 self.get_logger().info(f'Scanning for: "{label}"')
-                self._scanning_active = True
+                self._set_scanning(True)
                 self._detection_event.clear()
 
                 with self._detection_lock:
@@ -248,7 +250,7 @@ class LegoBuilder(Node):
                     self.get_logger().info(
                         f'Matched "{label}" at baseplate_frame '
                         f'({p.position.x:.3f}, {p.position.y:.3f}, z={match["height_m"]:.3f})')
-                    self._scanning_active = False
+                    self._set_scanning(False)
                     self.phase = Phase.PICK_AND_PLACE
                     self._advance()
                     return
@@ -449,6 +451,10 @@ class LegoBuilder(Node):
             self.get_logger().error(f'Execution failed: {e}')
 
     # ── Detection callbacks & matching ──────────────────────────────────────────
+
+    def _set_scanning(self, enabled: bool):
+        self._scanning_active = enabled
+        self._detection_enable_pub.publish(Bool(data=enabled))
 
     def _detection_pose_cb(self, msg: PoseArray):
         if self._scanning_active:

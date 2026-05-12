@@ -11,7 +11,7 @@ import open3d as o3d
 
 from sensor_msgs.msg import PointCloud2, PointField
 from geometry_msgs.msg import Pose, PoseArray
-from std_msgs.msg import Header, String
+from std_msgs.msg import Header, String, Bool
 import sensor_msgs_py.point_cloud2 as pc2
 
 import tf2_ros
@@ -83,10 +83,14 @@ class BrickDetectorNode(Node):
 
         self.latest_xyz    = None
         self.latest_pc_bgr = None
+        self._enabled      = False
 
         self.create_subscription(
             PointCloud2, '/camera/camera/depth/color/points',
             self.pointcloud_callback, 10)
+        self.create_subscription(
+            Bool, '/brick_detection_enabled',
+            lambda msg: setattr(self, '_enabled', msg.data), 10)
 
         self.pose_pub  = self.create_publisher(PoseArray,    '/detected_bricks',       10)
         self.meta_pub  = self.create_publisher(String,       '/detected_bricks_meta',  10)
@@ -127,6 +131,8 @@ class BrickDetectorNode(Node):
         return (cam_to_base @ pts_h.T).T[:, :3]
 
     def process(self):
+        if not self._enabled:
+            return
         if self.latest_xyz is None or self.latest_pc_bgr is None:
             return
 
