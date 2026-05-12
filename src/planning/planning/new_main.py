@@ -225,14 +225,22 @@ class LegoBuilder(Node):
                     if match is None:
                         continue
                     p = match['pose']
+                    # Rotate the unit x-axis by the detected quaternion to get
+                    # the brick's long-axis direction, then read off its yaw.
+                    ox, oy, oz, ow = (p.orientation.x, p.orientation.y,
+                                      p.orientation.z, p.orientation.w)
+                    long_x = 1.0 - 2.0 * (oy*oy + oz*oz)
+                    long_y = 2.0 * (ox*oy + oz*ow)
+                    brick_yaw_deg = math.degrees(math.atan2(long_y, long_x))
+                    pqx, pqy, pqz, pqw = _rotation_deg_to_quat(brick_yaw_deg)
                     brick['pick'] = {
                         'x':     p.position.x,
                         'y':     p.position.y,
                         'z':     match['height_m'],
-                        'qx':    0.0,
-                        'qy':    1.0,
-                        'qz':    0.0,
-                        'qw':    0.0,
+                        'qx':    pqx,
+                        'qy':    pqy,
+                        'qz':    pqz,
+                        'qw':    pqw,
                         'frame': 'baseplate',
                     }
                     self.get_logger().info(
@@ -333,7 +341,7 @@ class LegoBuilder(Node):
             return
 
         grasp = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + 0.025, pqx, pqy, pqz, pqw)
+            self.joint_state, px, py, pz + 0.04, pqx, pqy, pqz, pqw)
         if grasp is None:
             self.get_logger().error(f'IK failed: grasp brick {self.brick_idx}')
             return
