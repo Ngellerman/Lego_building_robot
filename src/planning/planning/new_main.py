@@ -335,13 +335,13 @@ class LegoBuilder(Node):
             f'pick=({px:.3f},{py:.3f},{pz:.3f}) place=({lx:.3f},{ly:.3f},{lz:.3f})')
 
         pre_grasp = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + 0.3, pqx, pqy, pqz, pqw)
+            self.joint_state, px, py, pz + 0.2, pqx, pqy, pqz, pqw)
         if pre_grasp is None:
             self.get_logger().error(f'IK failed: pre-grasp brick {self.brick_idx}')
             return
 
         grasp = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + 0.3, pqx, pqy, pqz, pqw)
+            self.joint_state, px, py, pz + 0.1, pqx, pqy, pqz, pqw)
         if grasp is None:
             self.get_logger().error(f'IK failed: grasp brick {self.brick_idx}')
             return
