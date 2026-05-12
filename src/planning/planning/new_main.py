@@ -231,7 +231,7 @@ class LegoBuilder(Node):
                                       p.orientation.z, p.orientation.w)
                     long_x = 1.0 - 2.0 * (oy*oy + oz*oz)
                     long_y = 2.0 * (ox*oy + oz*ow)
-                    brick_yaw_deg = math.degrees(math.atan2(long_y, long_x))
+                    brick_yaw_deg = math.degrees(math.atan2(long_y, long_x)) + 90.0
                     pqx, pqy, pqz, pqw = _rotation_deg_to_quat(brick_yaw_deg)
                     brick['pick'] = {
                         'x':     p.position.x,
@@ -341,7 +341,7 @@ class LegoBuilder(Node):
             return
 
         grasp = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + 0.04, pqx, pqy, pqz, pqw)
+            self.joint_state, px, py, pz + 0.1, pqx, pqy, pqz, pqw)
         if grasp is None:
             self.get_logger().error(f'IK failed: grasp brick {self.brick_idx}')
             return
