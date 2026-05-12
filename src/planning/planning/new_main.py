@@ -119,6 +119,7 @@ class LegoBuilder(Node):
         self._latest_detections  = []
         self._detection_lock     = threading.Lock()
         self._detection_event    = threading.Event()
+        self._scanning_active    = False
 
         self.tf_buffer   = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
@@ -201,6 +202,7 @@ class LegoBuilder(Node):
                 brick = self.bricks[self.brick_idx]
                 label = brick.get('label', '')
                 self.get_logger().info(f'Scanning for: "{label}"')
+                self._scanning_active = True
                 self._detection_event.clear()
 
                 with self._detection_lock:
@@ -246,10 +248,12 @@ class LegoBuilder(Node):
                     self.get_logger().info(
                         f'Matched "{label}" at baseplate_frame '
                         f'({p.position.x:.3f}, {p.position.y:.3f}, z={match["height_m"]:.3f})')
+                    self._scanning_active = False
                     self.phase = Phase.PICK_AND_PLACE
                     self._advance()
                     return
 
+                self._scanning_active = False
                 self.get_logger().error(
                     f'No match for "{label}" after {BRICK_SCAN_TIMEOUT_S:.0f}s — skipping.')
                 self.brick_idx += 1
@@ -447,9 +451,12 @@ class LegoBuilder(Node):
     # ── Detection callbacks & matching ──────────────────────────────────────────
 
     def _detection_pose_cb(self, msg: PoseArray):
-        self._latest_poses = msg.poses
+        if self._scanning_active:
+            self._latest_poses = msg.poses
 
     def _detection_meta_cb(self, msg: String):
+        if not self._scanning_active:
+            return
         meta = json.loads(msg.data)
         poses = self._latest_poses
         with self._detection_lock:
