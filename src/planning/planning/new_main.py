@@ -248,7 +248,12 @@ class LegoBuilder(Node):
                                       p.orientation.z, p.orientation.w)
                     long_x = 1.0 - 2.0 * (oy*oy + oz*oz)
                     long_y = 2.0 * (ox*oy + oz*ow)
-                    brick_yaw_deg = math.degrees(math.atan2(long_y, long_x)) + 90.0
+                    raw_yaw = math.degrees(math.atan2(long_y, long_x)) + 90.0
+                    # Two equivalent grasp orientations 180° apart; pick the one
+                    # closest to 0° so the robot stays as forward-facing as possible.
+                    alt_yaw = raw_yaw + 180.0
+                    brick_yaw_deg = min((raw_yaw, alt_yaw),
+                                        key=lambda a: abs((a + 180.0) % 360.0 - 180.0))
                     pqx, pqy, pqz, pqw = _rotation_deg_to_quat(brick_yaw_deg)
                     brick['pick'] = {
                         'x':     p.position.x,
