@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Project Title: Your Project Name Here</title>
-  <meta name="description" content="Your project description here — Course Name — Institution — Semester" />
+  <title>LEGO Robot - a robot that assembles Legos!</title>
+  <meta name="description" content="Team 6 — EECS 106A — UC Berkeley — Spring 2026" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
@@ -16,8 +16,8 @@
       --surface: #ffffff;
       --ink: #1a1a18;
       --ink-muted: #5a5a52;
-      --accent: #c8501a;
-      --accent-light: #fdf0ea;
+      --accent: #e0201c;
+      --accent-light: #fdeaea;
       --border: #e2ddd5;
       --nav-h: 60px;
       --max-w: 900px;
@@ -86,20 +86,24 @@
     .nav-links a:hover { color: var(--accent); }
 
     /* ── Hero ── */
+    .hero-band {
+      background: #1a1a18;
+      border-bottom: 3px solid var(--accent);
+    }
+    .hero-image-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 3rem 2rem 0;
+    }
+    .hero-brick-img {
+      width: 150px;
+      height: auto;
+    }
     .hero {
       max-width: var(--max-w);
       margin: 0 auto;
-      padding: 5rem 2rem 4rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .hero-tag {
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      color: var(--ink-muted);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 1.5rem;
+      padding: 2.5rem 2rem 4rem;
+      text-align: center;
     }
 
     .hero h1 {
@@ -107,14 +111,17 @@
       font-size: clamp(2.2rem, 5vw, 3.4rem);
       line-height: 1.15;
       margin-bottom: 1.25rem;
-      color: var(--ink);
+      margin-left: calc(-50vw + 50%);
+      margin-right: calc(-50vw + 50%);
+      padding: 0.5rem 2rem;
+      color: #ffffff;
     }
 
     .hero-subtitle {
-      font-size: 0.9rem;
-      color: var(--ink-muted);
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.6);
       letter-spacing: 0.02em;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     .hero-authors {
@@ -122,6 +129,7 @@
       flex-wrap: wrap;
       gap: 0.5rem;
       align-items: center;
+      justify-content: center;
     }
 
     .author-chip {
@@ -129,7 +137,7 @@
       font-size: 0.8rem;
       background: var(--accent-light);
       color: var(--accent);
-      border: 1px solid rgba(200, 80, 26, 0.2);
+      border: 1px solid rgba(224, 32, 28, 0.2);
       border-radius: 100px;
       padding: 0.25rem 0.85rem;
     }
@@ -153,21 +161,13 @@
       font-family: var(--font-display);
       font-size: clamp(1.6rem, 3.5vw, 2.2rem);
       margin-bottom: 2.5rem;
-      color: var(--ink);
-      position: relative;
-      padding-left: 1.25rem;
+      color: #ffffff;
+      padding: 0.75rem 1.25rem;
+      background: #1a1a18;
+      border-radius: 8px;
     }
 
-    h2::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0.2em;
-      bottom: 0.2em;
-      width: 3px;
-      background: var(--accent);
-      border-radius: 2px;
-    }
+    h2::before { display: none; }
 
     h3 {
       font-family: var(--font-display);
@@ -195,7 +195,7 @@
 
     /* ── Callout / Summary Box ── */
     .callout {
-      background: var(--accent-light);
+      background: var(--bg);
       border-left: 3px solid var(--accent);
       border-radius: 0 8px 8px 0;
       padding: 1.25rem 1.5rem;
@@ -208,17 +208,13 @@
     ol.steps { list-style: none; counter-reset: step; display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; }
     ol.steps li { counter-increment: step; display: flex; gap: 1rem; align-items: flex-start; }
     ol.steps li::before {
-      content: counter(step);
+      content: counter(step) ".";
       flex-shrink: 0;
-      width: 2rem; height: 2rem;
-      background: var(--accent);
-      color: #fff;
       font-family: var(--font-mono);
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       font-weight: 500;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 50%;
-      margin-top: 0.1rem;
+      color: var(--ink-muted);
+      margin-top: 0.15rem;
     }
 
     /* ── Bullet list ── */
@@ -404,31 +400,43 @@
 
 <!-- ── Navigation ── -->
 <nav>
-  <a class="nav-logo" href="#">[Project Acronym]</a>
+  <a class="nav-logo" href="#">[LEGO BOT]</a>
   <ul class="nav-links">
     <li><a href="#introduction">Introduction</a></li>
     <li><a href="#design">Design</a></li>
     <li><a href="#implementation">Implementation</a></li>
     <li><a href="#results">Results</a></li>
     <li><a href="#conclusion">Conclusion</a></li>
-    <li><a href="#team">Team</a></li>
-    <li><a href="#materials">Materials</a></li>
   </ul>
 </nav>
 
 <!-- ── Hero ── -->
-<header class="hero">
-  <p class="hero-tag">Course Name — Team # — Institution — Semester Year</p>
-  <h1>Project Title: Your Full Project Name Here</h1>
-  <p class="hero-subtitle">Team # — Course Name — Institution — Semester Year</p>
-  <div class="hero-authors">
-    <span class="author-chip">Author One</span>
-    <span class="author-chip">Author Two</span>
-    <span class="author-chip">Author Three</span>
-    <span class="author-chip">Author Four</span>
-    <span class="author-chip">Author Five</span>
+<div class="hero-band">
+  <div class="hero-image-wrap">
+    <svg class="hero-brick-img" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" aria-label="Red toy brick">
+      <g fill="#e0201c">
+        <rect x="58"  y="55" width="44" height="25" />
+        <ellipse cx="80"  cy="80" rx="22" ry="9" />
+        <ellipse cx="80"  cy="55" rx="22" ry="8" />
+        <rect x="138" y="55" width="44" height="25" />
+        <ellipse cx="160" cy="80" rx="22" ry="9" />
+        <ellipse cx="160" cy="55" rx="22" ry="8" />
+        <rect x="218" y="55" width="44" height="25" />
+        <ellipse cx="240" cy="80" rx="22" ry="9" />
+        <ellipse cx="240" cy="55" rx="22" ry="8" />
+        <rect x="298" y="55" width="44" height="25" />
+        <ellipse cx="320" cy="80" rx="22" ry="9" />
+        <ellipse cx="320" cy="55" rx="22" ry="8" />
+        <rect x="30" y="78" width="340" height="120" rx="6" ry="6" />
+      </g>
+    </svg>
   </div>
-</header>
+  <header class="hero">
+    <h1>[LEGO BOT] - a robot that assembles Legos!</h1>
+    <p class="hero-subtitle">Team 6 — EECS 106A — UC Berkeley — Spring 2026</p>
+    <p class="hero-subtitle">Nicholas Gellerman &amp; Braden Wang &amp; Scott &amp; Joe</p>
+  </header>
+</div>
 
 <!-- ── Introduction ── -->
 <section id="introduction">
@@ -442,11 +450,11 @@
       </p>
 
       <div class="callout">
-        <h4>In summary, there are 3 main components:</h4>
+        <h4>We have three main components:</h4>
         <ol class="steps">
-          <li>The first major component of your system — describe it in one clear sentence.</li>
-          <li>The second major component of your system — describe it in one clear sentence.</li>
-          <li>The third major component of your system — describe it in one clear sentence.</li>
+          <li>An interactive website to generate unique LEGO builds</li>
+          <li>A computer vision model to detect LEGO brick poses and the LEGO build plate</li>
+          <li>An algorithim to generate robot trajectories that will assemble the set brick by brick</li>
         </ol>
       </div>
     </div>
@@ -479,21 +487,37 @@
     </div>
 
     <div class="subsection">
+      <h4>Key Components:</h4>
+      <ul class="bullets">
+        <li>UR7e robotic arm</li>
+        <li>Custom 3D printed stud grippers</li>
+        <li>Realsense Depth Camera</li>
+        <li>Set of Duplo Legos with Lego Baseplate</li>
+        <li>Aruco tag with 3D printed alignment jig</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
       <h3>Design Choices</h3>
 
-      <h4>Component One — e.g. Perception / Planning / Control</h4>
+      <h4>Gripper</h4>
       <p>
         Explain your design decision for this component. What alternatives did you consider? Why did you select this approach? What are its tradeoffs in your context?
       </p>
 
-      <h4>Component Two — e.g. Hardware</h4>
+      <h4>Website</h4>
       <p>
-        Explain your hardware or algorithmic choices here. Discuss any custom fabrication, sensor selection, or platform decisions. What are the practical benefits and limitations?
+        Explain your design decision for this component. What alternatives did you consider? Why did you select this approach? What are its tradeoffs in your context?
       </p>
 
-      <h4>Component Three — e.g. Software / Architecture</h4>
+      <h4>Detection Node</h4>
       <p>
-        Describe the third major design decision. If applicable, mention what would be preferable in a different (e.g. production) context and why you made the tradeoffs you did for this project.
+        Explain your design decision for this component. What alternatives did you consider? Why did you select this approach? What are its tradeoffs in your context?
+      </p>
+
+      <h4>Planning and Execution Node</h4>
+      <p>
+        Explain your design decision for this component. What alternatives did you consider? Why did you select this approach? What are its tradeoffs in your context?
       </p>
     </div>
   </div>
@@ -514,69 +538,70 @@
       <div class="figure-grid">
         <figure class="figure">
           <img src="your-image-1.jpg" alt="Hardware component 1" />
-          <figcaption>Caption for image 1</figcaption>
+          <figcaption>Image of gripper CAD</figcaption>
         </figure>
         <figure class="figure">
           <img src="your-image-2.jpg" alt="Hardware component 2" />
-          <figcaption>Caption for image 2</figcaption>
+          <figcaption>Image of gripper with block in it</figcaption>
         </figure>
         <figure class="figure">
           <img src="your-image-3.jpg" alt="Hardware component 3" />
-          <figcaption>Caption for image 3</figcaption>
+          <figcaption>Drawing of conflicting place next to another brick versus with gripper</figcaption>
         </figure>
       </div>
 
-      <p>
-        Describe any issues you encountered with your hardware and how you addressed them. For example, did you iterate on a design? Did you switch materials or components?
-      </p>
+      <p><em>Describe any issues or roadblocks you encountered with your hardware and how you addressed them. For example, did you iterate on a design? Did you switch materials or components?</em></p>
 
-      <h4>Key Components:</h4>
-      <ul class="bullets">
-        <li>Robot or major platform component</li>
-        <li>Custom fabricated part (e.g. gripper, mount, enclosure)</li>
-        <li>Primary sensor (e.g. RGB camera, depth sensor, IMU)</li>
-        <li>Additional sensor or peripheral</li>
-        <li>Calibration target or fixture (e.g. Aruco marker, checkerboard)</li>
-      </ul>
     </div>
 
     <div class="subsection">
-      <h3>Module 1 — e.g. Planning</h3>
+      <h3>Module 1 — Interactive Website and Slicing</h3>
       <p>
         Describe the first major software module. What does it do? What input does it take and what output does it produce? How does it integrate with the rest of the system?
       </p>
-      <p>
-        Explain any interesting algorithmic choices, tools, or frameworks used. If you tested multiple approaches, briefly describe what didn't work and why.
-      </p>
+      
 
       <!-- Single image example -->
       <figure class="figure">
         <img src="your-module1-diagram.png" alt="Module 1 diagram or output" />
-        <figcaption>Caption describing this figure</figcaption>
+        <figcaption>gif of website</figcaption>
       </figure>
+      <p><em>Explain any interesting challenges or obstacles, briefly describe what didn't work and why.</em></p>
     </div>
 
     <div class="subsection">
-      <h3>Module 2 — e.g. Perception</h3>
+      <h3>Module 2 — Brick Detection and Pose Estimation</h3>
       <p>
         Describe the second major software module. Explain the algorithm, any assumptions it relies on, and how you validated its outputs.
       </p>
 
-      <figure class="figure">
-        <img src="your-module2-output.png" alt="Module 2 output example" />
-        <figcaption>Caption describing this figure</figcaption>
-      </figure>
+      <div class="figure-grid">
+        <figure class="figure">
+          <img src="your-module2-output-1.png" alt="Module 2 output example 1" />
+          <figcaption>point cloud of everything</figcaption>
+        </figure>
+        <figure class="figure">
+          <img src="your-module2-output-2.png" alt="Module 2 output example 2" />
+          <figcaption>isolated point cloud</figcaption>
+        </figure>
+        <figure class="figure">
+          <img src="your-module2-output-3.png" alt="Module 2 output example 3" />
+          <figcaption>isolated point cloud with poses</figcaption>
+        </figure>
+      </div>
 
       <p>
         You may also want to describe any alternative approaches you considered and why you didn't pursue them (e.g. off-the-shelf models, different sensor modalities).
       </p>
+      <p><em>Explain any interesting challenges or obstacles, briefly describe what didn't work and why.</em></p>
     </div>
 
     <div class="subsection">
-      <h3>Module 3 — e.g. Execution</h3>
+      <h3>Module 3 — Path Planning and Inverse Kinematics</h3>
       <p>
         Describe the third major software module. How does it use the outputs of the previous modules? What ROS nodes, APIs, or frameworks does it rely on?
       </p>
+      <p><em>Explain any interesting challenges or obstacles, briefly describe what didn't work and why.</em></p>
     </div>
 
     <div class="subsection">
@@ -650,105 +675,6 @@
         <li>Describe a more ambitious extension that would significantly expand the scope of the project.</li>
         <li>Describe a longer-term research direction that this project opens up.</li>
       </ul>
-    </div>
-  </div>
-</section>
-
-<!-- ── Team ── -->
-<section id="team">
-  <div class="container">
-    <h2>Team</h2>
-    <div class="team-grid">
-
-      <div class="team-card">
-        <img src="team-member-1.jpg" alt="Team Member 1" onerror="this.style.background='#e8e4dc';this.src=''" />
-        <div class="member-name">Member Name</div>
-        <div class="member-bio">
-          Year and major. One sentence about research interests or background. Advised by Prof. Advisor Name.
-        </div>
-        <div class="member-role">Contributions: Module A, Module B, Integration</div>
-      </div>
-
-      <div class="team-card">
-        <img src="team-member-2.jpg" alt="Team Member 2" onerror="this.style.background='#e8e4dc';this.src=''" />
-        <div class="member-name">Member Name</div>
-        <div class="member-bio">
-          Year and major. One sentence about research interests or background. Advised by Prof. Advisor Name.
-        </div>
-        <div class="member-role">Contributions: Module B, Testing, Documentation</div>
-      </div>
-
-      <div class="team-card">
-        <img src="team-member-3.jpg" alt="Team Member 3" onerror="this.style.background='#e8e4dc';this.src=''" />
-        <div class="member-name">Member Name</div>
-        <div class="member-bio">
-          Year and major. One sentence about research interests or background.
-        </div>
-        <div class="member-role">Contributions: Hardware, CAD, Fabrication</div>
-      </div>
-
-      <div class="team-card">
-        <img src="team-member-4.jpg" alt="Team Member 4" onerror="this.style.background='#e8e4dc';this.src=''" />
-        <div class="member-name">Member Name</div>
-        <div class="member-bio">
-          Year and major. One sentence about research interests or background.
-        </div>
-        <div class="member-role">Contributions: Perception, Pose Estimation</div>
-      </div>
-
-      <div class="team-card">
-        <img src="team-member-5.jpg" alt="Team Member 5" onerror="this.style.background='#e8e4dc';this.src=''" />
-        <div class="member-name">Member Name</div>
-        <div class="member-bio">
-          Year and major. One sentence about research interests or background.
-        </div>
-        <div class="member-role">Contributions: Planning, System Integration</div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ── Materials ── -->
-<section id="materials">
-  <div class="container">
-    <h2>Additional Materials</h2>
-    <div class="materials-grid">
-
-      <a class="material-card" href="https://github.com/your-repo" target="_blank" rel="noopener">
-        <span class="mat-label">GitHub</span>
-        <span class="mat-title">Project Repository</span>
-        <span class="mat-arrow">→</span>
-      </a>
-
-      <a class="material-card" href="https://youtube.com/your-video" target="_blank" rel="noopener">
-        <span class="mat-label">Video</span>
-        <span class="mat-title">Live Demo Recording</span>
-        <span class="mat-arrow">→</span>
-      </a>
-
-      <a class="material-card" href="https://docs.google.com/presentation/your-slides" target="_blank" rel="noopener">
-        <span class="mat-label">Slides</span>
-        <span class="mat-title">Showcase Presentation</span>
-        <span class="mat-arrow">→</span>
-      </a>
-
-      <a class="material-card" href="https://your-cad-link.com" target="_blank" rel="noopener">
-        <span class="mat-label">CAD</span>
-        <span class="mat-title">Hardware CAD Model</span>
-        <span class="mat-arrow">→</span>
-      </a>
-
-    </div>
-
-    <!-- References -->
-    <div class="references">
-      <h4>References</h4>
-      <ol>
-        <li>Author A, Author B, and Author C. "Title of Referenced Paper." Conference or Journal Name, Year.</li>
-        <li>Author D, Author E, and Author F. "Title of Another Referenced Paper." Conference or Journal Name, Year.</li>
-        <li>Author G and Author H. "Third Reference Title." Conference or Journal Name, Year.</li>
-      </ol>
     </div>
   </div>
 </section>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Red Brick</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: transparent;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  svg {
+    width: min(80vw, 80vh * 1.6);
+    height: auto;
+    display: block;
+  }
+</style>
+</head>
+<body>
+  <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" aria-label="Red toy brick">
+    <g fill="#e0201c">
+      <!-- Studs (4 across): side wall + top ellipse -->
+      <rect x="58"  y="55" width="44" height="25" />
+      <ellipse cx="80"  cy="80" rx="22" ry="9" />
+      <ellipse cx="80"  cy="55" rx="22" ry="8" />
+
+      <rect x="138" y="55" width="44" height="25" />
+      <ellipse cx="160" cy="80" rx="22" ry="9" />
+      <ellipse cx="160" cy="55" rx="22" ry="8" />
+
+      <rect x="218" y="55" width="44" height="25" />
+      <ellipse cx="240" cy="80" rx="22" ry="9" />
+      <ellipse cx="240" cy="55" rx="22" ry="8" />
+
+      <rect x="298" y="55" width="44" height="25" />
+      <ellipse cx="320" cy="80" rx="22" ry="9" />
+      <ellipse cx="320" cy="55" rx="22" ry="8" />
+
+      <!-- Brick body -->
+      <rect x="30" y="78" width="340" height="120" rx="6" ry="6" />
+    </g>
+  </svg>
+</body>
+</html>

@@ -2,11 +2,11 @@
   {
     "step": 1,
     "block_id": "b0",
-    "type": "2x4",
-    "color": "blue",
+    "type": "2x2",
+    "color": "purple",
     "layer": 1,
-    "grid_x": 10,
-    "grid_z": 8,
+    "grid_x": 1,
+    "grid_z": 1,
     "rotation_deg": 0
   },
   {
@@ -15,8 +15,28 @@
     "type": "2x4",
     "color": "yellow",
     "layer": 1,
-    "grid_x": 12,
-    "grid_z": 10,
+    "grid_x": 8,
+    "grid_z": 8,
+    "rotation_deg": 90
+  },
+  {
+    "step": 3,
+    "block_id": "b2",
+    "type": "2x4",
+    "color": "red",
+    "layer": 1,
+    "grid_x": 4,
+    "grid_z": 4,
+    "rotation_deg": 90
+  },
+  {
+    "step": 2,
+    "block_id": "b3",
+    "type": "2x4",
+    "color": "blue",
+    "layer": 1,
+    "grid_x": 5,
+    "grid_z": 1,
     "rotation_deg": 90
   }
 ]

@@ -27,14 +27,14 @@ STUD_PITCH_M        = 0.016   # 16 mm per stud
 LEGO_LAYER_HEIGHT_M = 0.0192  # 19.2 mm per normal brick layer
 
 # ── Pick offsets (relative to detected top-of-brick surface in base_link) ───
-PICK_BRICK_HEIGHT_M = 0.0192  # height of brick top above table in baseplate_frame (tune this)
+PICK_BRICK_HEIGHT_M = 0.019  # height of brick top above table in baseplate_frame (tune this)
 PICK_APPROACH_M     = 0.200   # pre-grasp hover height above brick top
-PICK_GRASP_M        = 0.143   # gripper contact height above brick top
+PICK_GRASP_M        = 0.15   # gripper contact height above brick top
 PICK_RETRACT_M      = 0.200   # post-pick lift height above brick top
 
 # ── Place offsets (relative to target place surface in base_link) ────────────
 PLACE_APPROACH_M       = 0.080   # pre-place hover height above surface
-PLACE_DEPOSIT_M        = 0.015   # final descent onto stud
+PLACE_DEPOSIT_M        = 0.033   # final descent onto stud
 PLACE_RETRACT_M        = 0.150   # post-place lift height above surface
 BASEPLATE_SURFACE_Z_M  = 0.14    # z of layer-1 surface in baseplate_frame — tune this
 
@@ -353,19 +353,19 @@ class LegoBuilder(Node):
             f'pick=({px:.3f},{py:.3f},{pz:.3f}) place=({lx:.3f},{ly:.3f},{lz:.3f})')
 
         pre_grasp = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + PICK_APPROACH_M, pqx, pqy, pqz, pqw)
+            SAFE_JOINT_STATE, px, py, pz + PICK_APPROACH_M, pqx, pqy, pqz, pqw)
         if pre_grasp is None:
             self.get_logger().error(f'IK failed: pre-grasp brick {self.brick_idx}')
             return
 
         grasp = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + PICK_GRASP_M, pqx, pqy, pqz, pqw)
+            SAFE_JOINT_STATE, px, py, pz + PICK_GRASP_M, pqx, pqy, pqz, pqw)
         if grasp is None:
             self.get_logger().error(f'IK failed: grasp brick {self.brick_idx}')
             return
 
         retract_pick = self.ik_planner.compute_ik(
-            self.joint_state, px, py, pz + PICK_RETRACT_M, pqx, pqy, pqz, pqw)
+            SAFE_JOINT_STATE, px, py, pz + PICK_RETRACT_M, pqx, pqy, pqz, pqw)
 
         pre_place = self.ik_planner.compute_ik(
             SAFE_JOINT_STATE, lx, ly, lz + PLACE_APPROACH_M, lqx, lqy, lqz, lqw)
