@@ -26,17 +26,17 @@ BRICK_SCAN_POSE = (0.4, 0.4, 0.288, 0.0, 1.0, 0.0, 0.0)
 STUD_PITCH_M        = 0.016   # 16 mm per stud
 LEGO_LAYER_HEIGHT_M = 0.0192  # 19.2 mm per normal brick layer
 
-# ── Pick offsets (relative to detected top-of-brick surface in base_link) ───
-PICK_BRICK_HEIGHT_M = 0.019  # height of brick top above table in baseplate_frame (tune this)
-PICK_APPROACH_M     = 0.200   # pre-grasp hover height above brick top
-PICK_GRASP_M        = 0.15   # gripper contact height above brick top
-PICK_RETRACT_M      = 0.200   # post-pick lift height above brick top
+# ── Pick heights (absolute z in base_link) ───────────────────────────────────
+PICK_Z_BASE_M       = 0.159   # z of brick top surface in base_link — tune this
+PICK_APPROACH_M     = 0.200   # hover height above PICK_Z_BASE_M
+PICK_GRASP_M        = 0.000   # grasp height above PICK_Z_BASE_M
+PICK_RETRACT_M      = 0.200   # post-pick lift height above PICK_Z_BASE_M
 
-# ── Place offsets (relative to target place surface in base_link) ────────────
-PLACE_APPROACH_M       = 0.080   # pre-place hover height above surface
+# ── Place heights (absolute z in base_link) ───────────────────────────────────
+PLACE_SURFACE_Z_BASE_M = 0.140   # z of layer-1 baseplate surface in base_link — tune this
+PLACE_APPROACH_M       = 0.080   # hover height above layer surface
 PLACE_DEPOSIT_M        = 0.033   # final descent onto stud
-PLACE_RETRACT_M        = 0.150   # post-place lift height above surface
-BASEPLATE_SURFACE_Z_M  = 0.14    # z of layer-1 surface in baseplate_frame — tune this
+PLACE_RETRACT_M        = 0.150   # post-place lift height above layer surface
 
 _KNOWN_COLORS = {
     'red', 'orange', 'yellow', 'light_green', 'blue',
@@ -104,7 +104,8 @@ def _load_bricks(json_path: Path, picks_path: Path = None) -> list[dict]:
                 'place': {
                     'x': entry['grid_x'] * -STUD_PITCH_M,
                     'y': entry['grid_z'] * STUD_PITCH_M,
-                    'z': BASEPLATE_SURFACE_Z_M + (entry.get('layer', 1) - 1) * LEGO_LAYER_HEIGHT_M,
+                    'z': 0,
+                    'layer': entry.get('layer', 1),
                     'qx': qx, 'qy': qy, 'qz': qz, 'qw': qw,
                     'frame': 'baseplate',
                 },
@@ -252,7 +253,7 @@ class LegoBuilder(Node):
                     brick['pick'] = {
                         'x':     p.position.x,
                         'y':     p.position.y,
-                        'z':     PICK_BRICK_HEIGHT_M,
+                        'z':     0,
                         'qx':    pqx,
                         'qy':    pqy,
                         'qz':    pqz,
@@ -345,8 +346,11 @@ class LegoBuilder(Node):
             self.get_logger().error(f'No pick pose for brick {self.brick_idx} — skipping.')
             return
 
-        px, py, pz, pqx, pqy, pqz, pqw = self._resolve_pose(pk)
-        lx, ly, lz, lqx, lqy, lqz, lqw = self._resolve_pose(pl)
+        px, py, _, pqx, pqy, pqz, pqw = self._resolve_pose(pk)
+        pz = PICK_Z_BASE_M
+
+        lx, ly, _, lqx, lqy, lqz, lqw = self._resolve_pose(pl)
+        lz = PLACE_SURFACE_Z_BASE_M + (pl.get('layer', 1) - 1) * LEGO_LAYER_HEIGHT_M
 
         self.get_logger().info(
             f'[Brick {self.brick_idx}] {label} | '
