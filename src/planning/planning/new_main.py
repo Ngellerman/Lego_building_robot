@@ -27,7 +27,7 @@ STUD_PITCH_M        = 0.016   # 16 mm per stud
 LEGO_LAYER_HEIGHT_M = 0.0192  # 19.2 mm per normal brick layer
 
 # ── Pick heights (absolute z in base_link) ───────────────────────────────────
-PICK_Z_BASE_M       = 0.159   # z of brick top surface in base_link — tune this
+PICK_Z_BASE_M       = -0.13   # z of brick top surface in base_link — tune this
 PICK_APPROACH_M     = 0.200   # hover height above PICK_Z_BASE_M
 PICK_GRASP_M        = 0.000   # grasp height above PICK_Z_BASE_M
 PICK_RETRACT_M      = 0.200   # post-pick lift height above PICK_Z_BASE_M
