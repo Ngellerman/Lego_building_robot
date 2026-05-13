@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Title: Your Project Name Here</title>
+  <meta name="description" content="Your project description here — Course Name — Institution — Semester" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Variables ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8f6f1;
+      --surface: #ffffff;
+      --ink: #1a1a18;
+      --ink-muted: #5a5a52;
+      --accent: #c8501a;
+      --accent-light: #fdf0ea;
+      --border: #e2ddd5;
+      --nav-h: 60px;
+      --max-w: 900px;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(248, 246, 241, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      gap: 2rem;
+    }
+
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0;
+      list-style: none;
+      overflow-x: auto;
+      flex: 1;
+    }
+
+    .nav-links a {
+      display: block;
+      padding: 0 1rem;
+      color: var(--ink-muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      line-height: var(--nav-h);
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 5rem 2rem 4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-tag {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      color: var(--ink);
+    }
+
+    .hero-subtitle {
+      font-size: 0.9rem;
+      color: var(--ink-muted);
+      letter-spacing: 0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-authors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .author-chip {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid rgba(200, 80, 26, 0.2);
+      border-radius: 100px;
+      padding: 0.25rem 0.85rem;
+    }
+
+    /* ── Main Layout ── */
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ── Section ── */
+    section {
+      padding: 4rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    section:last-of-type { border-bottom: none; }
+
+    h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      margin-bottom: 2.5rem;
+      color: var(--ink);
+      position: relative;
+      padding-left: 1.25rem;
+    }
+
+    h2::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.2em;
+      bottom: 0.2em;
+      width: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    h3 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: var(--ink);
+    }
+
+    h4 {
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    p { margin-bottom: 1.25rem; color: var(--ink); }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── Subsections ── */
+    .subsection { margin-bottom: 3rem; }
+    .subsection:last-child { margin-bottom: 0; }
+
+    /* ── Callout / Summary Box ── */
+    .callout {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout h4 { margin-bottom: 0.5rem; }
+
+    /* ── Numbered list ── */
+    ol.steps { list-style: none; counter-reset: step; display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; }
+    ol.steps li { counter-increment: step; display: flex; gap: 1rem; align-items: flex-start; }
+    ol.steps li::before {
+      content: counter(step);
+      flex-shrink: 0;
+      width: 2rem; height: 2rem;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      margin-top: 0.1rem;
+    }
+
+    /* ── Bullet list ── */
+    ul.bullets { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
+    ul.bullets li { display: flex; gap: 0.75rem; align-items: flex-start; }
+    ul.bullets li::before {
+      content: '●';
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 0.15em;
+      font-size: 0.7rem;
+    }
+
+    /* ── Check list ── */
+    ul.checks { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
+    ul.checks li { display: flex; gap: 0.75rem; align-items: flex-start; }
+    ul.checks li::before { content: '✓'; color: var(--accent); flex-shrink: 0; font-weight: 700; }
+
+    /* ── Images ── */
+    .figure {
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .figure img, .figure video {
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    }
+
+    .figure video { width: 100%; }
+
+    .figure figcaption {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      margin-top: 0.75rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Image grid ── */
+    .figure-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin: 2rem 0;
+    }
+
+    /* ── Team Cards ── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .team-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .team-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.09); transform: translateY(-2px); }
+
+    .team-card img {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border);
+      margin-bottom: 1rem;
+    }
+
+    .team-card .member-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .team-card .member-bio {
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+      margin-bottom: 0.75rem;
+      line-height: 1.55;
+    }
+
+    .team-card .member-role {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Materials / Links ── */
+    .materials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .material-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.25rem 1rem;
+      text-decoration: none;
+      color: var(--ink);
+      transition: box-shadow 0.2s, transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .material-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+    .material-card .mat-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .material-card .mat-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .material-card .mat-arrow {
+      margin-top: auto;
+      padding-top: 0.75rem;
+      font-size: 1rem;
+      color: var(--accent);
+    }
+
+    /* ── References ── */
+    .references {
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
+      margin-top: 2rem;
+    }
+
+    .references h4 { margin-bottom: 1rem; }
+
+    .references ol {
+      padding-left: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .references li {
+      font-size: 0.83rem;
+      color: var(--ink-muted);
+      line-height: 1.6;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--ink);
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 2.5rem 2rem;
+      font-size: 0.82rem;
+      line-height: 2;
+    }
+
+    footer strong { color: #fff; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .nav-links a { padding: 0 0.6rem; font-size: 0.75rem; }
+      .hero { padding: 3rem 1.25rem 2.5rem; }
+      .container { padding: 0 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+  <a class="nav-logo" href="#">[Project Acronym]</a>
+  <ul class="nav-links">
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#design">Design</a></li>
+    <li><a href="#implementation">Implementation</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#materials">Materials</a></li>
+  </ul>
+</nav>
+
+<!-- ── Hero ── -->
+<header class="hero">
+  <p class="hero-tag">Course Name — Team # — Institution — Semester Year</p>
+  <h1>Project Title: Your Full Project Name Here</h1>
+  <p class="hero-subtitle">Team # — Course Name — Institution — Semester Year</p>
+  <div class="hero-authors">
+    <span class="author-chip">Author One</span>
+    <span class="author-chip">Author Two</span>
+    <span class="author-chip">Author Three</span>
+    <span class="author-chip">Author Four</span>
+    <span class="author-chip">Author Five</span>
+  </div>
+</header>
+
+<!-- ── Introduction ── -->
+<section id="introduction">
+  <div class="container">
+    <h2>Introduction</h2>
+
+    <div class="subsection">
+      <h3>Goals</h3>
+      <p>
+        Describe the problem your project addresses. What is the context, and what does your system aim to accomplish? Provide enough background for a reader unfamiliar with your topic to understand the motivation.
+      </p>
+
+      <div class="callout">
+        <h4>In summary, there are 3 main components:</h4>
+        <ol class="steps">
+          <li>The first major component of your system — describe it in one clear sentence.</li>
+          <li>The second major component of your system — describe it in one clear sentence.</li>
+          <li>The third major component of your system — describe it in one clear sentence.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>Justification</h3>
+      <p>
+        Explain why this problem is worth solving, and why your approach is novel or significant. Reference any related work, broader research context, or real-world impact. Why did your team choose this specific problem?
+      </p>
+      <p>
+        Describe any challenges you encountered that highlight the difficulty of the problem—for example, limitations of prior methods, surprising failure modes, or technical barriers that shaped your design decisions.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Design ── -->
+<section id="design">
+  <div class="container">
+    <h2>Design</h2>
+
+    <div class="subsection">
+      <h3>Design Criteria</h3>
+      <p>
+        State the high-level objectives that constrain your design. What assumptions do you make about the operating environment? What does success look like? Be concrete and measurable where possible.
+      </p>
+      <p>
+        For example: "We assume X is given, Y is unknown, and the system must accomplish Z without human intervention."
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3>Design Choices</h3>
+
+      <h4>Component One — e.g. Perception / Planning / Control</h4>
+      <p>
+        Explain your design decision for this component. What alternatives did you consider? Why did you select this approach? What are its tradeoffs in your context?
+      </p>
+
+      <h4>Component Two — e.g. Hardware</h4>
+      <p>
+        Explain your hardware or algorithmic choices here. Discuss any custom fabrication, sensor selection, or platform decisions. What are the practical benefits and limitations?
+      </p>
+
+      <h4>Component Three — e.g. Software / Architecture</h4>
+      <p>
+        Describe the third major design decision. If applicable, mention what would be preferable in a different (e.g. production) context and why you made the tradeoffs you did for this project.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Implementation ── -->
+<section id="implementation">
+  <div class="container">
+    <h2>Implementation</h2>
+
+    <div class="subsection">
+      <h3>Hardware</h3>
+      <p>
+        Describe your hardware setup. What robot, sensor, or custom device did you use? Explain any significant fabrication or integration work. Highlight design decisions and their rationale.
+      </p>
+
+      <!-- Three-image grid example -->
+      <div class="figure-grid">
+        <figure class="figure">
+          <img src="your-image-1.jpg" alt="Hardware component 1" />
+          <figcaption>Caption for image 1</figcaption>
+        </figure>
+        <figure class="figure">
+          <img src="your-image-2.jpg" alt="Hardware component 2" />
+          <figcaption>Caption for image 2</figcaption>
+        </figure>
+        <figure class="figure">
+          <img src="your-image-3.jpg" alt="Hardware component 3" />
+          <figcaption>Caption for image 3</figcaption>
+        </figure>
+      </div>
+
+      <p>
+        Describe any issues you encountered with your hardware and how you addressed them. For example, did you iterate on a design? Did you switch materials or components?
+      </p>
+
+      <h4>Key Components:</h4>
+      <ul class="bullets">
+        <li>Robot or major platform component</li>
+        <li>Custom fabricated part (e.g. gripper, mount, enclosure)</li>
+        <li>Primary sensor (e.g. RGB camera, depth sensor, IMU)</li>
+        <li>Additional sensor or peripheral</li>
+        <li>Calibration target or fixture (e.g. Aruco marker, checkerboard)</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <h3>Module 1 — e.g. Planning</h3>
+      <p>
+        Describe the first major software module. What does it do? What input does it take and what output does it produce? How does it integrate with the rest of the system?
+      </p>
+      <p>
+        Explain any interesting algorithmic choices, tools, or frameworks used. If you tested multiple approaches, briefly describe what didn't work and why.
+      </p>
+
+      <!-- Single image example -->
+      <figure class="figure">
+        <img src="your-module1-diagram.png" alt="Module 1 diagram or output" />
+        <figcaption>Caption describing this figure</figcaption>
+      </figure>
+    </div>
+
+    <div class="subsection">
+      <h3>Module 2 — e.g. Perception</h3>
+      <p>
+        Describe the second major software module. Explain the algorithm, any assumptions it relies on, and how you validated its outputs.
+      </p>
+
+      <figure class="figure">
+        <img src="your-module2-output.png" alt="Module 2 output example" />
+        <figcaption>Caption describing this figure</figcaption>
+      </figure>
+
+      <p>
+        You may also want to describe any alternative approaches you considered and why you didn't pursue them (e.g. off-the-shelf models, different sensor modalities).
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3>Module 3 — e.g. Execution</h3>
+      <p>
+        Describe the third major software module. How does it use the outputs of the previous modules? What ROS nodes, APIs, or frameworks does it rely on?
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3>Overall Pipeline</h3>
+      <p>With each module developed, the end-to-end pipeline works as follows:</p>
+
+      <ol class="steps">
+        <li><strong>Step 1 — Module Name:</strong> Describe what happens in the first stage of your pipeline and what it produces as output.</li>
+        <li><strong>Step 2 — Module Name:</strong> Describe what happens in the second stage and how it uses the output of step 1.</li>
+        <li><strong>Step 3 — Module Name:</strong> Describe what happens in the third stage.</li>
+        <li><strong>Step 4 — Execution:</strong> Describe the final stage that closes the loop and produces observable behavior.</li>
+      </ol>
+
+      <!-- System architecture diagram -->
+      <figure class="figure">
+        <img src="your-system-diagram.png" alt="System architecture diagram" />
+        <figcaption>System architecture diagram</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ── Results ── -->
+<section id="results">
+  <div class="container">
+    <h2>Results</h2>
+    <p>
+      Summarize your experimental results. Did the system achieve its goals? Under what conditions did it succeed or fail? Use quantitative metrics where possible.
+    </p>
+
+    <!-- Video embed example -->
+    <figure class="figure">
+      <video controls>
+        <source src="your-demo-video.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <figcaption>Demo video — replace with your own</figcaption>
+    </figure>
+
+    <p>
+      Discuss any representative examples, edge cases, or failure modes. Include images, charts, or tables to support your claims. If your results were mixed, be honest about what worked and what didn't.
+    </p>
+  </div>
+</section>
+
+<!-- ── Conclusion ── -->
+<section id="conclusion">
+  <div class="container">
+    <h2>Conclusion</h2>
+
+    <div class="subsection">
+      <h3>Challenges Encountered</h3>
+      <ul class="bullets">
+        <li><strong>Challenge 1:</strong> Describe the first major challenge you faced during the project.</li>
+        <li><strong>Challenge 2:</strong> Describe a perception or calibration issue and how you addressed it.</li>
+        <li><strong>Challenge 3:</strong> Describe a hardware failure or unexpected system behavior.</li>
+        <li><strong>Challenge 4:</strong> Describe a planning or control issue (e.g. solver failures, timing issues).</li>
+        <li><strong>Challenge 5:</strong> Describe any integration challenge — getting components to work together.</li>
+      </ul>
+      <p>
+        Summarize what you learned from this project. What aspects of engineering or research were most illuminating? Reflect on the experience.
+      </p>
+    </div>
+
+    <div class="subsection">
+      <h3>Future Improvements</h3>
+      <ul class="checks">
+        <li>Describe one improvement that would directly address a current limitation of your system.</li>
+        <li>Describe an improvement to your perception or sensing pipeline.</li>
+        <li>Describe a hardware or actuator improvement that would increase reliability.</li>
+        <li>Describe a more ambitious extension that would significantly expand the scope of the project.</li>
+        <li>Describe a longer-term research direction that this project opens up.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── Team ── -->
+<section id="team">
+  <div class="container">
+    <h2>Team</h2>
+    <div class="team-grid">
+
+      <div class="team-card">
+        <img src="team-member-1.jpg" alt="Team Member 1" onerror="this.style.background='#e8e4dc';this.src=''" />
+        <div class="member-name">Member Name</div>
+        <div class="member-bio">
+          Year and major. One sentence about research interests or background. Advised by Prof. Advisor Name.
+        </div>
+        <div class="member-role">Contributions: Module A, Module B, Integration</div>
+      </div>
+
+      <div class="team-card">
+        <img src="team-member-2.jpg" alt="Team Member 2" onerror="this.style.background='#e8e4dc';this.src=''" />
+        <div class="member-name">Member Name</div>
+        <div class="member-bio">
+          Year and major. One sentence about research interests or background. Advised by Prof. Advisor Name.
+        </div>
+        <div class="member-role">Contributions: Module B, Testing, Documentation</div>
+      </div>
+
+      <div class="team-card">
+        <img src="team-member-3.jpg" alt="Team Member 3" onerror="this.style.background='#e8e4dc';this.src=''" />
+        <div class="member-name">Member Name</div>
+        <div class="member-bio">
+          Year and major. One sentence about research interests or background.
+        </div>
+        <div class="member-role">Contributions: Hardware, CAD, Fabrication</div>
+      </div>
+
+      <div class="team-card">
+        <img src="team-member-4.jpg" alt="Team Member 4" onerror="this.style.background='#e8e4dc';this.src=''" />
+        <div class="member-name">Member Name</div>
+        <div class="member-bio">
+          Year and major. One sentence about research interests or background.
+        </div>
+        <div class="member-role">Contributions: Perception, Pose Estimation</div>
+      </div>
+
+      <div class="team-card">
+        <img src="team-member-5.jpg" alt="Team Member 5" onerror="this.style.background='#e8e4dc';this.src=''" />
+        <div class="member-name">Member Name</div>
+        <div class="member-bio">
+          Year and major. One sentence about research interests or background.
+        </div>
+        <div class="member-role">Contributions: Planning, System Integration</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Materials ── -->
+<section id="materials">
+  <div class="container">
+    <h2>Additional Materials</h2>
+    <div class="materials-grid">
+
+      <a class="material-card" href="https://github.com/your-repo" target="_blank" rel="noopener">
+        <span class="mat-label">GitHub</span>
+        <span class="mat-title">Project Repository</span>
+        <span class="mat-arrow">→</span>
+      </a>
+
+      <a class="material-card" href="https://youtube.com/your-video" target="_blank" rel="noopener">
+        <span class="mat-label">Video</span>
+        <span class="mat-title">Live Demo Recording</span>
+        <span class="mat-arrow">→</span>
+      </a>
+
+      <a class="material-card" href="https://docs.google.com/presentation/your-slides" target="_blank" rel="noopener">
+        <span class="mat-label">Slides</span>
+        <span class="mat-title">Showcase Presentation</span>
+        <span class="mat-arrow">→</span>
+      </a>
+
+      <a class="material-card" href="https://your-cad-link.com" target="_blank" rel="noopener">
+        <span class="mat-label">CAD</span>
+        <span class="mat-title">Hardware CAD Model</span>
+        <span class="mat-arrow">→</span>
+      </a>
+
+    </div>
+
+    <!-- References -->
+    <div class="references">
+      <h4>References</h4>
+      <ol>
+        <li>Author A, Author B, and Author C. "Title of Referenced Paper." Conference or Journal Name, Year.</li>
+        <li>Author D, Author E, and Author F. "Title of Another Referenced Paper." Conference or Journal Name, Year.</li>
+        <li>Author G and Author H. "Third Reference Title." Conference or Journal Name, Year.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <strong>Project Title</strong><br />
+  Course Name — Team # — Semester Year<br />
+  Institution Name
+</footer>
+
+</body>
+</html>
