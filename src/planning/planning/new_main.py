@@ -28,14 +28,14 @@ LEGO_LAYER_HEIGHT_M = 0.0192  # 19.2 mm per normal brick layer
 
 # ── Pick heights (absolute z in base_link) ───────────────────────────────────
 PICK_Z_BASE_M       = -0.03   # z of brick top surface in base_link — tune this
-PICK_APPROACH_M     = 0.100   # hover height above PICK_Z_BASE_M
+PICK_APPROACH_M     = 0.06   # hover height above PICK_Z_BASE_M
 PICK_GRASP_M        = 0.000   # grasp height above PICK_Z_BASE_M
 PICK_RETRACT_M      = 0.200   # post-pick lift height above PICK_Z_BASE_M
 
 # ── Place heights (absolute z in base_link) ───────────────────────────────────
 PLACE_SURFACE_Z_BASE_M = -0.03   # z of layer-1 baseplate surface in base_link — tune this
 PLACE_APPROACH_M       = 0.080   # hover height above layer surface
-PLACE_DEPOSIT_M        = -0.004   # final descent onto stud
+PLACE_DEPOSIT_M        = 0.004   # final descent onto stud
 PLACE_RETRACT_M        = 0.150   # post-place lift height above layer surface
 
 _KNOWN_COLORS = {
@@ -368,7 +368,7 @@ class LegoBuilder(Node):
             return
 
         grasp = self.ik_planner.compute_ik(
-            SAFE_JOINT_STATE, px, py, pz + PICK_GRASP_M, pqx, pqy, pqz, pqw)
+            pre_grasp, px, py, pz + PICK_GRASP_M, pqx, pqy, pqz, pqw)
         if grasp is None:
             self.get_logger().error(f'IK failed: grasp brick {self.brick_idx}')
             return
