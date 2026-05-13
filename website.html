@@ -605,21 +605,18 @@
     </div>
 
     <div class="subsection">
-      <h3>Overall Pipeline</h3>
+      <h3>System state diagram</h3>
       <p>With each module developed, the end-to-end pipeline works as follows:</p>
 
       <ol class="steps">
-        <li><strong>Step 1 — Module Name:</strong> Describe what happens in the first stage of your pipeline and what it produces as output.</li>
-        <li><strong>Step 2 — Module Name:</strong> Describe what happens in the second stage and how it uses the output of step 1.</li>
-        <li><strong>Step 3 — Module Name:</strong> Describe what happens in the third stage.</li>
-        <li><strong>Step 4 — Execution:</strong> Describe the final stage that closes the loop and produces observable behavior.</li>
+        <li><strong>Step 1 — Receive New Build:</strong> Describe the final stage that closes the loop and produces observable behavior.</li>
+        <li><strong>Step 2 — Plan Build Order:</strong> Describe the final stage that closes the loop and produces observable behavior.</li>
+        <li><strong>Step 3 — Scan Aruco Tag:</strong> Describe what happens in the first stage of your pipeline and what it produces as output.</li>
+        <li><strong>Step 4 — Scan For Next Brick:</strong> Describe what happens in the second stage and how it uses the output of step 1.</li>
+        <li><strong>Step 5 — Pickup Brick:</strong> Describe what happens in the third stage.</li>
+        <li><strong>Step 6 — Place Brick onto build plate:</strong> Describe the final stage that closes the loop and produces observable behavior.</li>
+        <li><strong>Step 7 — Go back to Scan for Next Brick:</strong> Describe the final stage that closes the loop and produces observable behavior.</li>
       </ol>
-
-      <!-- System architecture diagram -->
-      <figure class="figure">
-        <img src="your-system-diagram.png" alt="System architecture diagram" />
-        <figcaption>System architecture diagram</figcaption>
-      </figure>
     </div>
   </div>
 </section>
