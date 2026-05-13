@@ -374,7 +374,7 @@ class LegoBuilder(Node):
             return
 
         retract_pick = self.ik_planner.compute_ik(
-            SAFE_JOINT_STATE, px, py, pz + PICK_RETRACT_M, pqx, pqy, pqz, pqw)
+            grasp, px, py, pz + PICK_RETRACT_M, pqx, pqy, pqz, pqw)
 
         pre_place = self.ik_planner.compute_ik(
             SAFE_JOINT_STATE, lx, ly, lz + PLACE_APPROACH_M, lqx, lqy, lqz, lqw)
@@ -383,13 +383,13 @@ class LegoBuilder(Node):
             return
 
         place = self.ik_planner.compute_ik(
-            SAFE_JOINT_STATE, lx, ly, lz + PLACE_DEPOSIT_M, lqx, lqy, lqz, lqw)
+            pre_place, lx, ly, lz + PLACE_DEPOSIT_M, lqx, lqy, lqz, lqw)
         if place is None:
             self.get_logger().error(f'IK failed: place brick {self.brick_idx}')
             return
 
         retract_place = self.ik_planner.compute_ik(
-            SAFE_JOINT_STATE, lx, ly, lz + PLACE_RETRACT_M, lqx, lqy, lqz, lqw)
+            place, lx, ly, lz + PLACE_RETRACT_M, lqx, lqy, lqz, lqw)
 
         self.job_queue.append(pre_grasp)
         self.job_queue.append(grasp)
