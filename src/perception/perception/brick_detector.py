@@ -54,7 +54,7 @@ MIN_CLUSTER_PTS      = 10
 TABLE_MASK_MARGIN_M  = 0.018
 MAX_BRICK_HEIGHT_M   = 0.060
 
-VOXEL_SIZE_M         = 0.004
+VOXEL_SIZE_M         = 0.002
 DBSCAN_EPS_M         = 0.012
 DBSCAN_MIN_PTS       = 10
 
@@ -154,12 +154,15 @@ class BrickDetectorNode(Node):
 
             rows, cols, brick_R = self._shape_from_pointcloud_extent(cluster_pts_base)
 
-            centroid  = np.median(cluster_pts_base, axis=0)
             heights_z = cluster_pts_base[:, 2]
             heights_pos = heights_z[heights_z > 0]
             height_m  = (float(np.percentile(heights_pos, HEIGHT_PERCENTILE))
                          if len(heights_pos) >= MIN_CLUSTER_PTS // 2
                          else BRICK_HEIGHTS['normal'])
+
+            top_mask = cluster_pts_base[:, 2] >= (height_m - 0.003)
+            top_pts  = cluster_pts_base[top_mask]
+            centroid  = np.median(top_pts if len(top_pts) >= MIN_CLUSTER_PTS else cluster_pts_base, axis=0)
 
             pose = Pose()
             pose.position.x = float(centroid[0])
