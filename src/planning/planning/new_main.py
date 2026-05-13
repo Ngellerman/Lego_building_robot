@@ -104,7 +104,7 @@ def _load_bricks(json_path: Path, picks_path: Path = None) -> list[dict]:
                 'place': {
                     'x': entry['grid_x'] * -STUD_PITCH_M,
                     'y': entry['grid_z'] * STUD_PITCH_M,
-                    'z': 0,
+                    'z': 0.0,
                     'layer': entry.get('layer', 1),
                     'qx': qx, 'qy': qy, 'qz': qz, 'qw': qw,
                     'frame': 'baseplate',
@@ -253,7 +253,7 @@ class LegoBuilder(Node):
                     brick['pick'] = {
                         'x':     p.position.x,
                         'y':     p.position.y,
-                        'z':     0,
+                        'z':     0.0,
                         'qx':    pqx,
                         'qy':    pqy,
                         'qz':    pqz,
