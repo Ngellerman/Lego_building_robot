@@ -502,12 +502,20 @@
 
       <h4>Gripper</h4>
       <p>
-        Explain your design decision for this component. What alternatives did you consider? Why did you select this approach? What are its tradeoffs in your context?
+        The first major design choice we made for the gripper was the decision to pick up the bricks by the studs. 
+        In order to allow the robot to place bricks next to each other, we needed the gripper to avoid any potential 
+        contact with neighboring bricks. By picking up the bricks by the studs, we effectively move the gripper away 
+        from the sides of the bricks and constrain its footprint to the space above the bricks. Then came the decision 
+        on whether we wanted the grippers to pinch the studs from the outside like a vice or expand from the 
+        inside like an expanding manderel. In an ideal world we'd always choose to pick up from the inside since this 
+        keeps the profile of the gripper as small as possible, but it also makes the movement tolerances that much 
+        tighter. Since we were detecting the starting locations of the bricks using a sometimes noisy computer vision 
+        system, we decided to grip the studs like a vice clamp in order to take some weight off of the computer vision.
       </p>
 
       <h4>Website</h4>
       <p>
-        Explain your design decision for this component. What alternatives did you consider? Why did you select this approach? What are its tradeoffs in your context?
+        
       </p>
 
       <h4>Detection Node</h4>
