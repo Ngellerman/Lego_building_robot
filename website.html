@@ -574,16 +574,32 @@
     <div class="subsection">
       <h3>Module 1 — Interactive Website and Slicing</h3>
       <p>
-        Describe the first major software module. What does it do? What input does it take and what output does it produce? How does it integrate with the rest of the system?
+        The website effectively functions as our project's user interface. Through the website, the user builds their 
+        lego set, and then just sends it to the robot which then builds their set brick for brick. To the user, 
+        everything else is a blackbox. To us, it's the beginning of a long series of steps to get the user's lego set 
+        into the real world. After the user clicks the "send to robot" button, the website slices the build, not 
+        dissimilar to how a slicing software would for a 3D print. The slicer looks at what the user's built, and 
+        orders each brick by how high above the build plate its studs will be. Then it orders them from left to right, 
+        back to front before sending it to the robot as a json file. The brick type, color, location, and orientation 
+        are all encoded in the json file too so the robot knows exactly which brick to pick up, in which order, and 
+        where to place it on the build plate.
       </p>
       
 
       <!-- Single image example -->
-      <figure class="figure">
-        <img src="your-module1-diagram.png" alt="Module 1 diagram or output" />
-        <figcaption>gif of website</figcaption>
-      </figure>
-      <p><em>Explain any interesting challenges or obstacles, briefly describe what didn't work and why.</em></p>
+      <video width="640" height="360" controls>
+        <source src="Videos/Website_vid.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <p><em>
+        While the website was a core portion of the functionality of our project, we didn't put as many hours into it 
+        compared to the other modules. The core purpose of this project was still to excercise and further our knowledge 
+        in ros2 and robotics engineering, so making the website as water-tight as possible wasn't high on our list of 
+        priorities. As such, once the website was capable of keeping track of and placing every type of brick available 
+        to us and correctly exporting an ordered list of bricks for the robot to read, we left it as it was. As such, if 
+        you poke around the website you will notice some... peculiar behaviour from some of the bricks, especially when you 
+        try to rotate some of the funkier shapes. 
+      </em></p>
     </div>
 
     <div class="subsection">
